@@ -11,25 +11,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    // SIMULATED AI PARSING ENGINE (Zero-cost demo)
-    // Production: Extracted text goes to Llama 3 via Groq for structured JSON
+    // SIMULATED AI PARSING ENGINE
     await new Promise(resolve => setTimeout(resolve, 2500)); 
 
-    // Intelligent Parsing Mock Output
     const gapAnalysis = {
-      candidate_skills: ["React", "JavaScript", "HTML", "CSS", "Git"],
-      required_skills: ["React", "Next.js", "Docker", "Machine Learning", "Team Leadership"],
-      missing_skills: ["Next.js", "Docker", "Machine Learning", "Team Leadership"]
+      candidate_skills: ["React", "JavaScript", "HTML", "CSS", "Git", "REST APIs"],
+      required_skills: ["React", "Next.js", "Docker", "Machine Learning", "Team Leadership", "Cloud Architecture"],
+      missing_skills: ["Next.js", "Docker", "Machine Learning", "Cloud Architecture"]
     };
 
-    // Run custom adaptive pathway mapping
-    const pathway = generateAdaptivePathway(gapAnalysis);
+    const advancedPathwayData = generateAdaptivePathway(gapAnalysis);
 
     return NextResponse.json({
       success: true,
       data: {
         analysis: gapAnalysis,
-        pathway: pathway
+        ...advancedPathwayData // Splays pathway, roi_metrics, mentorship, sandbox
       }
     });
   } catch (error) {

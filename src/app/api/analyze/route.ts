@@ -1,39 +1,32 @@
-import { NextResponse } from 'next/server';
-import mammoth from 'mammoth';
-import Groq from 'groq-sdk';
 import { createRequire } from 'node:module';
 
+import mammoth from 'mammoth';
+import { NextResponse } from 'next/server';
+import Groq from 'groq-sdk';
+
 import { generateAdaptivePathway } from '@/lib/adaptive-logic';
-import { GapAnalysis, SkillLevel, SkillProfile, normalizeSkillName } from '@/lib/analysis-types';
+import {
+  FALLBACK_ANALYSIS,
+  buildAnalysisMeta,
+  buildHeuristicAnalysis,
+  buildPromptSeed,
+  mergeAnalyses,
+  normalizeStructuredAnalysis,
+} from '@/lib/analysis-engine';
+import { GapAnalysis } from '@/lib/analysis-types';
 import { validateFile } from '@/lib/file-validator';
 import { rateLimit } from '@/lib/rate-limiter';
 import { sanitizeText } from '@/lib/sanitize';
 
 export const runtime = 'nodejs';
-const require = createRequire(import.meta.url);
 
-const FALLBACK_ANALYSIS: GapAnalysis = {
-  candidate_profile: [
-    { skill: 'React', level: 'intermediate', years: 2, evidence: 'Resume project work' },
-    { skill: 'JavaScript', level: 'intermediate', years: 3, evidence: 'Hands-on development experience' },
-    { skill: 'Git', level: 'intermediate', years: 2, evidence: 'Version control usage' },
-  ],
-  required_profile: [
-    { skill: 'React', level: 'intermediate', years: 2 },
-    { skill: 'Next.js', level: 'intermediate', years: 1 },
-    { skill: 'Docker', level: 'beginner', years: 1 },
-    { skill: 'AWS', level: 'beginner', years: 1 },
-  ],
-  candidate_skills: ['React', 'JavaScript', 'Git'],
-  required_skills: ['React', 'Next.js', 'Docker', 'AWS'],
-  missing_skills: ['Next.js', 'Docker', 'AWS'],
-};
+const require = createRequire(import.meta.url);
 
 async function extractTextFromFile(file: File): Promise<string> {
   const buffer = Buffer.from(await file.arrayBuffer());
-  const ext = file.name.split('.').pop()?.toLowerCase();
+  const extension = file.name.split('.').pop()?.toLowerCase();
 
-  switch (ext) {
+  switch (extension) {
     case 'pdf': {
       const { PDFParse } = require('pdf-parse') as {
         PDFParse: new (params: { data: Buffer }) => {
@@ -41,6 +34,7 @@ async function extractTextFromFile(file: File): Promise<string> {
           destroy: () => Promise<void>;
         };
       };
+
       const parser = new PDFParse({ data: buffer });
       try {
         const result = await parser.getText();
@@ -60,85 +54,54 @@ async function extractTextFromFile(file: File): Promise<string> {
   }
 }
 
-function dedupeSkills(skills: string[]) {
-  const seen = new Set<string>();
-  const result: string[] = [];
-
-  for (const skill of skills) {
-    const normalized = normalizeSkillName(skill);
-    if (!normalized || seen.has(normalized)) continue;
-    seen.add(normalized);
-    result.push(skill.trim());
-  }
-
-  return result;
+async function requestGroqAnalysis(input: {
+  apiKey: string;
+  resumeText: string;
+  jdText: string;
+  seed: ReturnType<typeof buildPromptSeed>;
+}): Promise<GapAnalysis> {
+  const groq = new Groq({ apiKey: input.apiKey });
+  const completion = await groq.chat.completions.create({
+    model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile',
+    temperature: 0.1,
+    response_format: { type: 'json_object' },
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You extract onboarding skill gaps from a resume and a job description. Return strict JSON only. Use only skills that are directly grounded in the provided texts or seed lists. Prefer the seed labels when they match the same concept. If the candidate mentions a skill at a lower depth than the role requires, keep that skill in both profiles with different levels so the downstream gap engine can detect under-proficiency.',
+      },
+      {
+        role: 'user',
+        content: `Return JSON using this exact structure:
+{
+  "candidate_profile": [
+    { "skill": "React", "level": "intermediate", "years": 2, "evidence": "Built dashboard features" }
+  ],
+  "required_profile": [
+    { "skill": "Next.js", "level": "intermediate", "years": 1, "evidence": "Required in JD" }
+  ],
+  "candidate_skills": ["React"],
+  "required_skills": ["React", "Next.js"],
+  "missing_skills": ["Next.js"],
+  "role_track": "engineering"
 }
 
-function safeLevel(input: unknown): SkillLevel {
-  if (input === 'advanced' || input === 'intermediate' || input === 'beginner') {
-    return input;
-  }
-  return 'beginner';
-}
+Allowed role_track values: engineering, analytics, operations, support, sales, finance, general
 
-function normalizeProfile(profile: unknown): SkillProfile[] {
-  if (!Array.isArray(profile)) return [];
+Seed hints:
+${JSON.stringify(input.seed, null, 2)}
 
-  return dedupeSkills(
-    profile
-      .map((item) => (typeof item === 'object' && item && 'skill' in item ? String(item.skill).trim() : ''))
-      .filter(Boolean),
-  ).map((skill) => {
-    const raw = profile.find(
-      (item) => typeof item === 'object' && item && 'skill' in item && normalizeSkillName(String(item.skill)) === normalizeSkillName(skill),
-    ) as Record<string, unknown> | undefined;
+Resume:
+${input.resumeText}
 
-    return {
-      skill,
-      level: safeLevel(raw?.level),
-      years: typeof raw?.years === 'number' ? raw.years : undefined,
-      evidence: typeof raw?.evidence === 'string' ? raw.evidence : undefined,
-    };
+Job description:
+${input.jdText}`,
+      },
+    ],
   });
-}
 
-function deriveMissingSkills(candidateSkills: string[], requiredSkills: string[]) {
-  const candidateSet = new Set(candidateSkills.map(normalizeSkillName));
-  return requiredSkills.filter((skill) => !candidateSet.has(normalizeSkillName(skill)));
-}
-
-function normalizeAnalysis(payload: unknown): GapAnalysis {
-  const data = typeof payload === 'object' && payload ? (payload as Record<string, unknown>) : {};
-  const candidateProfile = normalizeProfile(data.candidate_profile);
-  const requiredProfile = normalizeProfile(data.required_profile);
-
-  const candidateSkills = dedupeSkills([
-    ...candidateProfile.map((item) => item.skill),
-    ...(Array.isArray(data.candidate_skills) ? data.candidate_skills.filter((item): item is string => typeof item === 'string') : []),
-  ]).slice(0, 16);
-
-  const requiredSkills = dedupeSkills([
-    ...requiredProfile.map((item) => item.skill),
-    ...(Array.isArray(data.required_skills) ? data.required_skills.filter((item): item is string => typeof item === 'string') : []),
-  ]).slice(0, 16);
-
-  const missingSkills = dedupeSkills(
-    Array.isArray(data.missing_skills) ? data.missing_skills.filter((item): item is string => typeof item === 'string') : [],
-  );
-
-  return {
-    candidate_profile:
-      candidateProfile.length > 0
-        ? candidateProfile
-        : candidateSkills.map((skill) => ({ skill, level: 'beginner' as SkillLevel })),
-    required_profile:
-      requiredProfile.length > 0
-        ? requiredProfile
-        : requiredSkills.map((skill) => ({ skill, level: 'intermediate' as SkillLevel })),
-    candidate_skills: candidateSkills,
-    required_skills: requiredSkills,
-    missing_skills: missingSkills.length > 0 ? missingSkills : deriveMissingSkills(candidateSkills, requiredSkills),
-  };
+  return normalizeStructuredAnalysis(JSON.parse(completion.choices[0]?.message?.content || '{}'));
 }
 
 export async function POST(request: Request) {
@@ -151,86 +114,90 @@ export async function POST(request: Request) {
 
     const formData = await request.formData();
     const resumeFile = formData.get('resume');
+    const resumeTextInput = formData.get('resumeText');
     const rawJd = formData.get('jd');
 
-    if (!(resumeFile instanceof File) || typeof rawJd !== 'string') {
-      return NextResponse.json({ error: 'Resume file and job description are required.' }, { status: 400 });
+    const hasResumeFile = resumeFile instanceof File;
+    const hasResumeText = typeof resumeTextInput === 'string' && resumeTextInput.trim().length > 0;
+
+    if ((!hasResumeFile && !hasResumeText) || typeof rawJd !== 'string') {
+      return NextResponse.json(
+        { error: 'Provide either a resume file or pasted resume text, along with the job description.' },
+        { status: 400 },
+      );
     }
 
-    const validation = await validateFile(resumeFile);
-    if (!validation.valid) {
-      return NextResponse.json({ error: validation.error }, { status: 400 });
+    if (hasResumeFile) {
+      const validation = await validateFile(resumeFile);
+      if (!validation.valid) {
+        return NextResponse.json({ error: validation.error }, { status: 400 });
+      }
     }
 
-    const resumeText = await extractTextFromFile(resumeFile);
-    const { clean: cleanResume, flagged: resumeFlagged } = sanitizeText(resumeText);
+    const extractedResume = hasResumeFile ? await extractTextFromFile(resumeFile) : '';
+    const rawResume = extractedResume || (hasResumeText ? String(resumeTextInput) : '');
+
+    const { clean: cleanResume, flagged: resumeFlagged } = sanitizeText(rawResume);
     const { clean: cleanJd, flagged: jdFlagged } = sanitizeText(rawJd);
 
     if (!cleanResume || !cleanJd) {
-      return NextResponse.json({ error: 'Failed to extract readable text from the submitted documents.' }, { status: 422 });
+      return NextResponse.json(
+        { error: 'Failed to extract readable text from the submitted materials.' },
+        { status: 422 },
+      );
     }
+
+    const heuristic = buildHeuristicAnalysis(cleanResume, cleanJd);
+    const warnings = [...heuristic.warnings];
+
+    let analysis = heuristic.analysis;
+    let analysisMode: 'heuristic' | 'hybrid' | 'demo' = 'heuristic';
+    let usedLlm = false;
+    let simulated = false;
 
     const apiKey = process.env.GROQ_API_KEY;
-    if (!apiKey) {
-      const pathway = generateAdaptivePathway(FALLBACK_ANALYSIS);
-      return NextResponse.json({
-        success: true,
-        data: { analysis: FALLBACK_ANALYSIS, ...pathway },
-        meta: {
-          simulated: true,
-          security: { resumeFlagged, jdFlagged },
-          rateLimit: { remaining, resetMs },
-        },
-      });
+    if (apiKey) {
+      try {
+        const structuredAnalysis = await requestGroqAnalysis({
+          apiKey,
+          resumeText: cleanResume,
+          jdText: cleanJd,
+          seed: buildPromptSeed(heuristic.analysis),
+        });
+        analysis = mergeAnalyses(heuristic.analysis, structuredAnalysis);
+        analysisMode = 'hybrid';
+        usedLlm = true;
+      } catch (error) {
+        console.error('[GROQ_ANALYSIS_FALLBACK]', error);
+        warnings.push('Groq refinement was unavailable, so the deterministic parser handled this request end-to-end.');
+      }
+    } else {
+      warnings.push('No Groq key was configured. The deterministic parser handled this request locally.');
     }
 
-    const groq = new Groq({ apiKey });
-    const completion = await groq.chat.completions.create({
-      model: 'llama-3.3-70b-versatile',
-      response_format: { type: 'json_object' },
-      messages: [
-        {
-          role: 'system',
-          content:
-            'You are an HR onboarding analyst. Extract a structured candidate skill profile and a structured required skill profile from the resume and job description. Output strict JSON only. For each skill, include level as beginner/intermediate/advanced, optional years as a number when inferable, and a short evidence string. Include candidate_skills, required_skills, and missing_skills arrays too.',
-        },
-        {
-          role: 'user',
-          content: `Return JSON using this exact shape:
-{
-  "candidate_profile": [
-    { "skill": "React", "level": "intermediate", "years": 2, "evidence": "Built frontend modules" }
-  ],
-  "required_profile": [
-    { "skill": "Next.js", "level": "intermediate", "years": 1, "evidence": "Required in JD" }
-  ],
-  "candidate_skills": ["React"],
-  "required_skills": ["React", "Next.js"],
-  "missing_skills": ["Next.js"]
-}
+    if (analysis.candidate_profile.length === 0 && analysis.required_profile.length === 0) {
+      analysis = FALLBACK_ANALYSIS;
+      analysisMode = 'demo';
+      simulated = true;
+      warnings.push('The submitted text did not contain enough recognizable signals, so a demo-safe fallback profile was used.');
+    }
 
-Only include skills grounded in the provided texts.
-
-RESUME:
-${cleanResume}
-
-JOB DESCRIPTION:
-${cleanJd}`,
-        },
-      ],
-    });
-
-    const parsed = JSON.parse(completion.choices[0]?.message?.content || '{}');
-    const analysis = normalizeAnalysis(parsed);
     const pathway = generateAdaptivePathway(analysis);
 
     return NextResponse.json({
       success: true,
       data: { analysis, ...pathway },
-      meta: {
-        security: { resumeFlagged, jdFlagged },
-        rateLimit: { remaining, resetMs },
-      },
+      meta: buildAnalysisMeta({
+        analysisMode,
+        usedLlm,
+        simulated,
+        roleTrack: analysis.role_track ?? 'general',
+        warnings,
+        resumeFlagged,
+        jdFlagged,
+        remaining,
+        resetMs,
+      }),
     });
   } catch (error) {
     console.error('[ANALYZE_API_ERROR]', error);

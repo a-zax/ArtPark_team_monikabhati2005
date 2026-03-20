@@ -6,34 +6,78 @@
     "difficulty": "beginner",
     "estimated_hours": 6,
     "prerequisites": [],
-    "role_tags": ["engineering", "design", "marketing"]
+    "role_tags": ["engineering", "design", "marketing"],
+    "outcomes": ["Ship accessible UI fundamentals", "Read and modify frontend code confidently"]
+  },
+  {
+    "id": "typescript_safety",
+    "title": "TypeScript for Product Teams",
+    "skills_covered": ["TypeScript", "JavaScript", "Documentation"],
+    "difficulty": "beginner",
+    "estimated_hours": 5,
+    "prerequisites": ["web_foundations"],
+    "role_tags": ["engineering"],
+    "outcomes": ["Use types to reduce regressions", "Model API payloads and UI state safely"]
   },
   {
     "id": "react_foundations",
     "title": "React Component Development",
-    "skills_covered": ["React", "Component Architecture", "State Management"],
+    "skills_covered": ["React", "JavaScript", "Component Architecture"],
     "difficulty": "beginner",
     "estimated_hours": 6,
     "prerequisites": ["web_foundations"],
-    "role_tags": ["engineering"]
+    "role_tags": ["engineering"],
+    "outcomes": ["Build reusable components", "Manage local state and props clearly"]
+  },
+  {
+    "id": "react_product_patterns",
+    "title": "React Product Patterns",
+    "skills_covered": ["React", "TypeScript", "Testing"],
+    "difficulty": "intermediate",
+    "estimated_hours": 7,
+    "prerequisites": ["react_foundations", "typescript_safety"],
+    "role_tags": ["engineering"],
+    "outcomes": ["Structure production-ready feature modules", "Add maintainable component tests"]
   },
   {
     "id": "nextjs_app_router",
     "title": "Next.js App Router Delivery",
-    "skills_covered": ["Next.js", "SSR", "API Integration"],
+    "skills_covered": ["Next.js", "React", "API Integration"],
     "difficulty": "intermediate",
     "estimated_hours": 8,
-    "prerequisites": ["react_foundations"],
-    "role_tags": ["engineering"]
+    "prerequisites": ["react_product_patterns"],
+    "role_tags": ["engineering"],
+    "outcomes": ["Deliver routed application flows", "Connect frontend surfaces to backend data"]
+  },
+  {
+    "id": "frontend_quality",
+    "title": "Frontend Testing and Release Quality",
+    "skills_covered": ["Testing", "Git", "Documentation"],
+    "difficulty": "intermediate",
+    "estimated_hours": 6,
+    "prerequisites": ["react_product_patterns"],
+    "role_tags": ["engineering"],
+    "outcomes": ["Protect feature work with focused tests", "Document release-risk decisions clearly"]
+  },
+  {
+    "id": "node_services",
+    "title": "Node Services and API Delivery",
+    "skills_covered": ["Node.js", "API Integration", "Git"],
+    "difficulty": "intermediate",
+    "estimated_hours": 7,
+    "prerequisites": ["typescript_safety"],
+    "role_tags": ["engineering"],
+    "outcomes": ["Build typed backend handlers", "Integrate APIs into product workflows"]
   },
   {
     "id": "python_fundamentals",
     "title": "Python for Automation and Analytics",
-    "skills_covered": ["Python", "Scripting", "Data Processing"],
+    "skills_covered": ["Python", "Data Processing", "Documentation"],
     "difficulty": "beginner",
     "estimated_hours": 6,
     "prerequisites": [],
-    "role_tags": ["engineering", "analytics", "operations"]
+    "role_tags": ["engineering", "analytics", "operations"],
+    "outcomes": ["Write useful scripts from scratch", "Transform operational data safely"]
   },
   {
     "id": "data_analysis",
@@ -42,61 +86,98 @@
     "difficulty": "beginner",
     "estimated_hours": 7,
     "prerequisites": [],
-    "role_tags": ["analytics", "finance", "operations"]
+    "role_tags": ["analytics", "finance", "operations"],
+    "outcomes": ["Query structured business data", "Translate findings into simple reporting"]
+  },
+  {
+    "id": "dashboard_storytelling",
+    "title": "Dashboard Storytelling with Power BI",
+    "skills_covered": ["Power BI", "Reporting", "Data Analysis"],
+    "difficulty": "intermediate",
+    "estimated_hours": 6,
+    "prerequisites": ["data_analysis"],
+    "role_tags": ["analytics", "finance"],
+    "outcomes": ["Build stakeholder-ready dashboards", "Surface trends and risks clearly"]
   },
   {
     "id": "ml_foundations",
     "title": "Applied Machine Learning Foundations",
-    "skills_covered": ["Machine Learning", "Feature Engineering", "Model Evaluation"],
+    "skills_covered": ["Machine Learning", "Feature Engineering", "Model Evaluation", "Python"],
     "difficulty": "intermediate",
     "estimated_hours": 8,
     "prerequisites": ["python_fundamentals", "data_analysis"],
-    "role_tags": ["engineering", "analytics"]
+    "role_tags": ["engineering", "analytics"],
+    "outcomes": ["Train and compare practical models", "Evaluate model quality with the right metrics"]
   },
   {
     "id": "llm_workflows",
     "title": "LLM Integration Workflows",
-    "skills_covered": ["LLMs", "Prompt Engineering", "API Integration"],
+    "skills_covered": ["LLMs", "Prompt Engineering", "API Integration", "Python"],
     "difficulty": "intermediate",
     "estimated_hours": 5,
     "prerequisites": ["python_fundamentals"],
-    "role_tags": ["engineering", "analytics", "support"]
+    "role_tags": ["engineering", "analytics", "support"],
+    "outcomes": ["Connect an LLM safely into a product flow", "Design grounded prompts and response checks"]
   },
   {
     "id": "devops_ci_cd",
     "title": "Containerization and CI/CD",
-    "skills_covered": ["Docker", "CI/CD", "Deployment", "Git"],
+    "skills_covered": ["Docker", "CI/CD", "Git", "Documentation"],
     "difficulty": "intermediate",
     "estimated_hours": 8,
     "prerequisites": [],
-    "role_tags": ["engineering", "operations"]
+    "role_tags": ["engineering", "operations"],
+    "outcomes": ["Package services consistently", "Ship changes with repeatable deployment steps"]
   },
   {
     "id": "cloud_operations",
     "title": "Cloud Operations Essentials",
-    "skills_covered": ["AWS", "Cloud Operations", "Monitoring", "Incident Management"],
+    "skills_covered": ["AWS", "Monitoring", "Incident Management"],
     "difficulty": "intermediate",
     "estimated_hours": 8,
     "prerequisites": ["devops_ci_cd"],
-    "role_tags": ["engineering", "operations"]
+    "role_tags": ["engineering", "operations"],
+    "outcomes": ["Deploy to cloud environments safely", "Observe and respond to production issues"]
   },
   {
     "id": "support_operations",
     "title": "Customer Support Operations",
-    "skills_covered": ["Customer Support", "Ticketing", "Escalation Management", "SLA Management"],
+    "skills_covered": ["Customer Support", "Ticketing", "Communication"],
     "difficulty": "beginner",
     "estimated_hours": 5,
     "prerequisites": [],
-    "role_tags": ["support", "operations"]
+    "role_tags": ["support", "operations"],
+    "outcomes": ["Work queues and customer tickets effectively", "Communicate status updates with empathy"]
+  },
+  {
+    "id": "support_escalations",
+    "title": "Support Escalations and SLA Recovery",
+    "skills_covered": ["Escalation Management", "SLA Management", "Root Cause Analysis"],
+    "difficulty": "intermediate",
+    "estimated_hours": 6,
+    "prerequisites": ["support_operations"],
+    "role_tags": ["support", "operations"],
+    "outcomes": ["Recover at-risk tickets quickly", "Run clean handoffs to engineering and operations"]
   },
   {
     "id": "sales_onboarding",
     "title": "Consultative Sales Fundamentals",
-    "skills_covered": ["Sales", "Lead Qualification", "CRM", "Negotiation"],
+    "skills_covered": ["Sales", "Lead Qualification", "Communication"],
     "difficulty": "beginner",
     "estimated_hours": 6,
     "prerequisites": [],
-    "role_tags": ["sales"]
+    "role_tags": ["sales"],
+    "outcomes": ["Run structured discovery calls", "Separate qualified leads from low-fit opportunities"]
+  },
+  {
+    "id": "sales_pipeline_ops",
+    "title": "Pipeline Management and CRM Hygiene",
+    "skills_covered": ["CRM", "Negotiation", "Reporting"],
+    "difficulty": "intermediate",
+    "estimated_hours": 6,
+    "prerequisites": ["sales_onboarding"],
+    "role_tags": ["sales"],
+    "outcomes": ["Maintain trustworthy pipeline data", "Track negotiation progress and commercial risk"]
   },
   {
     "id": "warehouse_safety",
@@ -105,7 +186,8 @@
     "difficulty": "beginner",
     "estimated_hours": 5,
     "prerequisites": [],
-    "role_tags": ["operations"]
+    "role_tags": ["operations"],
+    "outcomes": ["Follow warehouse flow safely", "Handle inventory with fewer operational mistakes"]
   },
   {
     "id": "manufacturing_quality",
@@ -113,8 +195,9 @@
     "skills_covered": ["Quality Control", "SOP Compliance", "Root Cause Analysis"],
     "difficulty": "intermediate",
     "estimated_hours": 6,
-    "prerequisites": [],
-    "role_tags": ["operations"]
+    "prerequisites": ["warehouse_safety"],
+    "role_tags": ["operations"],
+    "outcomes": ["Inspect process quality consistently", "Investigate repeat failures with a simple RCA loop"]
   },
   {
     "id": "project_coordination",
@@ -123,16 +206,18 @@
     "difficulty": "beginner",
     "estimated_hours": 5,
     "prerequisites": [],
-    "role_tags": ["operations", "marketing", "finance", "engineering"]
+    "role_tags": ["operations", "marketing", "finance", "engineering"],
+    "outcomes": ["Track dependencies and next actions", "Send concise cross-functional updates"]
   },
   {
     "id": "leadership_foundations",
     "title": "Team Leadership and Coaching",
-    "skills_covered": ["Leadership", "Coaching", "Communication", "Feedback"],
+    "skills_covered": ["Leadership", "Coaching", "Communication"],
     "difficulty": "advanced",
     "estimated_hours": 7,
     "prerequisites": ["project_coordination"],
-    "role_tags": ["operations", "sales", "engineering", "support"]
+    "role_tags": ["operations", "sales", "engineering", "support"],
+    "outcomes": ["Coach teammates through execution gaps", "Lead practical reviews and feedback loops"]
   },
   {
     "id": "finance_controls",
@@ -141,6 +226,7 @@
     "difficulty": "intermediate",
     "estimated_hours": 7,
     "prerequisites": ["data_analysis"],
-    "role_tags": ["finance"]
+    "role_tags": ["finance"],
+    "outcomes": ["Reconcile financial records accurately", "Prepare compliance-aware reporting"]
   }
 ]

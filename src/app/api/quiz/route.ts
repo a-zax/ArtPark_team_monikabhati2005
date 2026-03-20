@@ -1,6 +1,49 @@
 import { NextResponse } from 'next/server';
-import { rateLimit } from '@/lib/rate-limiter';
 import Groq from 'groq-sdk';
+
+import { canonicalizeSkill } from '@/lib/skill-taxonomy';
+import { rateLimit } from '@/lib/rate-limiter';
+
+type QuizQuestion = {
+  question: string;
+  options: string[];
+  answer: number;
+};
+
+function buildFallbackQuestions(skill: string): QuizQuestion[] {
+  return [
+    {
+      question: `Which outcome best proves practical working knowledge of ${skill}?`,
+      options: [
+        'Memorizing terminology only',
+        'Shipping a small task or workflow using it correctly',
+        'Watching a demo without applying it',
+        'Skipping documentation and trial runs',
+      ],
+      answer: 1,
+    },
+    {
+      question: `When ramping up on ${skill}, which habit most improves reliability?`,
+      options: [
+        'Relying on guesswork',
+        'Avoiding feedback until the end',
+        'Reviewing examples, constraints, and expected outputs before implementation',
+        'Ignoring edge cases to move faster',
+      ],
+      answer: 2,
+    },
+    {
+      question: `What is the best onboarding next step if someone struggles with ${skill}?`,
+      options: [
+        'Move straight to production ownership',
+        'Skip the module and hope the gap disappears',
+        'Use guided practice, examples, and mentor review before independent execution',
+        'Replace the skill requirement with a different tool',
+      ],
+      answer: 2,
+    },
+  ];
+}
 
 export async function POST(request: Request) {
   try {
@@ -10,60 +53,45 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Too many requests' }, { status: 429 });
     }
 
-    const { skill } = await request.json();
-
-    if (!skill || typeof skill !== 'string') {
+    const body = await request.json();
+    const skill = typeof body.skill === 'string' ? canonicalizeSkill(body.skill.trim()) : '';
+    if (!skill) {
       return NextResponse.json({ error: 'Invalid skill' }, { status: 400 });
     }
 
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      // Fallback
-      return NextResponse.json({
-         questions: [
-           { 
-             question: `What is the primary use case of ${skill}?`, 
-             options: [`Building UI`, `Managing State`, `Abstracting API logic`, `All of the above`], 
-             answer: 3 
-           }
-         ]
-      });
+      return NextResponse.json({ questions: buildFallbackQuestions(skill) });
     }
 
     const groq = new Groq({ apiKey });
-
     const completion = await groq.chat.completions.create({
+      model: process.env.GROQ_MODEL ?? 'llama-3.3-70b-versatile',
+      temperature: 0.2,
+      response_format: { type: 'json_object' },
       messages: [
         {
           role: 'system',
-          content: `Generate exactly 3 multiple choice questions to assess a user's knowledge of the technology requested.
-          
-          RESPONSE FORMAT (Strict JSON):
-          {
-            "questions": [
-              {
-                "question": "What does X do?",
-                "options": ["A", "B", "C", "D"],
-                "answer": 1 // Index of the correct option (0-3)
-              }
-            ]
-          }`
+          content:
+            'Generate exactly 3 multiple-choice questions that assess practical onboarding knowledge for the requested skill. Return strict JSON only in the shape { "questions": [{ "question": "...", "options": ["A","B","C","D"], "answer": 0 }] }. The correct answer index must be between 0 and 3.',
         },
         {
           role: 'user',
-          content: `Technology to assess: ${skill}`
-        }
+          content: `Skill to assess: ${skill}`,
+        },
       ],
-      model: 'llama-3.3-70b-versatile',
-      response_format: { type: 'json_object' }
     });
 
-    const aiResponse = JSON.parse(completion.choices[0]?.message?.content || '{}');
+    const parsed = JSON.parse(completion.choices[0]?.message?.content || '{}');
+    if (!Array.isArray(parsed.questions) || parsed.questions.length === 0) {
+      return NextResponse.json({ questions: buildFallbackQuestions(skill) });
+    }
 
-    return NextResponse.json(aiResponse);
-
+    return NextResponse.json({
+      questions: parsed.questions.slice(0, 3),
+    });
   } catch (error) {
-    console.error('[QUIZ API ERROR]', error);
+    console.error('[QUIZ_API_ERROR]', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }

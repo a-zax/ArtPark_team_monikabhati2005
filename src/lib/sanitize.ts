@@ -1,41 +1,32 @@
-/**
- * ENTERPRISE INPUT SANITIZATION
- * ─────────────────────────────────────────────────────────────
- * Guards against:
- *   - HTML/script injection (XSS)
- *   - SQL / NoSQL injection patterns
- *   - LLM Prompt injection attacks
- *   - Null-byte injection
- *   - Path traversal attacks
- */
-
 const DANGEROUS_PATTERNS = [
-  /<script[\s\S]*?>[\s\S]*?<\/script>/gi,   // Script tags
-  /javascript\s*:/gi,                         // JS protocol
-  /on\w+\s*=\s*["'][^"']*["']/gi,            // Inline event handlers
-  /--|\bDROP\b|\bDELETE\b|\bINSERT\b|\bUPDATE\b|\bSELECT\b|\bUNION\b/gi, // SQL
-  /\{\{.*?\}\}|\$\{.*?\}/g,                  // Template injection
-  /\.\.\//g,                                  // Path traversal
-  /\x00/g,                                    // Null bytes
-  /ignore previous instructions/gi,           // Prompt injection
-  /system prompt/gi,                          // Prompt injection
-  /you are now/gi,                            // Prompt injection
+  /<script[\s\S]*?>[\s\S]*?<\/script>/gi,
+  /javascript\s*:/gi,
+  /on\w+\s*=\s*["'][^"']*["']/gi,
+  /\{\{.*?\}\}|\$\{.*?\}/g,
+  /\.\.\//g,
+  /\x00/g,
+  /ignore\s+previous\s+instructions/gi,
+  /reveal\s+the\s+system\s+prompt/gi,
+  /you\s+are\s+now\s+an?\s+/gi,
 ];
+
+const MAX_INPUT_LENGTH = 15_000;
 
 export function sanitizeText(input: string): { clean: string; flagged: boolean } {
   let clean = input.trim();
   let flagged = false;
 
   for (const pattern of DANGEROUS_PATTERNS) {
-    if (pattern.test(clean)) {
-      flagged = true;
-      clean = clean.replace(pattern, '[REDACTED]');
+    if (!pattern.test(clean)) {
+      continue;
     }
+
+    flagged = true;
+    clean = clean.replace(pattern, '[REDACTED]');
   }
 
-  // Max length enforcement — prevent payload flooding
-  if (clean.length > 15_000) {
-    clean = clean.slice(0, 15_000);
+  if (clean.length > MAX_INPUT_LENGTH) {
+    clean = clean.slice(0, MAX_INPUT_LENGTH);
     flagged = true;
   }
 

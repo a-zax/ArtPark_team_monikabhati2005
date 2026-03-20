@@ -1,15 +1,5 @@
-/**
- * NEXT.JS EDGE MIDDLEWARE — Enterprise Security Layer
- * ─────────────────────────────────────────────────────────────────
- * Intercepts EVERY request before it reaches any route handler.
- * Guards:
- *   – Blocks known malicious User-Agent patterns
- *   – Rejects suspicious URL path traversal sequences
- *   – Adds security response headers on every response
- */
-
-import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 const BLOCKED_UA_PATTERNS = [
   /sqlmap/i,
@@ -19,56 +9,55 @@ const BLOCKED_UA_PATTERNS = [
   /nmap/i,
   /masscan/i,
   /zgrab/i,
-  /python-requests\/[01]\./i,   // old automated scrapers
-  /go-http-client\/1\./i,       // generic bot clients
+  /python-requests\/[01]\./i,
+  /go-http-client\/1\./i,
 ];
 
 const SUSPICIOUS_PATH_PATTERNS = [
-  /\.\.\//,             // directory traversal
-  /<script/i,           // XSS in URL
-  /\x00/,               // null byte
-  /\/etc\/passwd/i,     // LFI
-  /\/proc\//i,          // LFI
-  /union.*select/i,     // SQL injection
+  /\.\.\//,
+  /<script/i,
+  /\x00/,
+  /\/etc\/passwd/i,
+  /\/proc\//i,
+  /union.*select/i,
 ];
 
-// Security headers applied to EVERY response
 const SECURITY_HEADERS: Record<string, string> = {
-  'X-Frame-Options':            'DENY',
-  'X-Content-Type-Options':     'nosniff',
-  'X-XSS-Protection':           '1; mode=block',
-  'Referrer-Policy':            'strict-origin-when-cross-origin',
-  'Permissions-Policy':         'camera=(), microphone=(), geolocation=(), payment=()',
-  'Strict-Transport-Security':  'max-age=63072000; includeSubDomains; preload',
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'X-XSS-Protection': '1; mode=block',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=()',
+  'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
   'Content-Security-Policy':
     "default-src 'self'; " +
     "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
-    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-    "font-src 'self' https://fonts.gstatic.com; " +
+    "style-src 'self' 'unsafe-inline'; " +
     "img-src 'self' data: blob:; " +
+    "font-src 'self' data:; " +
     "connect-src 'self'; " +
-    "frame-ancestors 'none';",
+    "frame-ancestors 'none'; " +
+    "base-uri 'self'; " +
+    "form-action 'self'; " +
+    "object-src 'none';",
 };
 
-export function middleware(req: NextRequest) {
-  const ua   = req.headers.get('user-agent') ?? '';
-  const url  = req.nextUrl.pathname + req.nextUrl.search;
+export function middleware(request: NextRequest) {
+  const userAgent = request.headers.get('user-agent') ?? '';
+  const url = request.nextUrl.pathname + request.nextUrl.search;
 
-  // ── Block malicious User-Agent strings ──────────────────────────
-  if (BLOCKED_UA_PATTERNS.some(p => p.test(ua))) {
+  if (BLOCKED_UA_PATTERNS.some((pattern) => pattern.test(userAgent))) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
-  // ── Block suspicious URL patterns ───────────────────────────────
-  if (SUSPICIOUS_PATH_PATTERNS.some(p => p.test(url))) {
+  if (SUSPICIOUS_PATH_PATTERNS.some((pattern) => pattern.test(url))) {
     return new NextResponse('Bad Request', { status: 400 });
   }
 
-  // ── Pass through and inject security headers ─────────────────────
   const response = NextResponse.next();
-  Object.entries(SECURITY_HEADERS).forEach(([k, v]) => {
-    response.headers.set(k, v);
-  });
+  for (const [key, value] of Object.entries(SECURITY_HEADERS)) {
+    response.headers.set(key, value);
+  }
 
   return response;
 }

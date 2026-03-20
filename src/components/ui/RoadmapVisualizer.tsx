@@ -7,266 +7,389 @@ import {
   CheckCircle2,
   Clock,
   Gauge,
-  Info,
   Layers,
+  ShieldCheck,
+  Sparkles,
   Target,
   TrendingDown,
   Users,
-  Activity,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
+import {
+  AnalysisMeta,
+  GAP_SEVERITY_LABEL,
+  GapAnalysis,
+  LearningModule,
+  PathwayResult,
+} from "@/lib/analysis-types";
 import { downloadICS } from "@/lib/ics";
-import { GapAnalysis, LearningModule, PathwayResult } from "@/lib/analysis-types";
+
 import KnowledgeQuizModal from "./KnowledgeQuizModal";
 import SkillRadar from "./SkillRadar";
 
 type Props = {
   pathway: LearningModule[];
+  stages: PathwayResult["stages"];
+  skill_gap_details: PathwayResult["skill_gap_details"];
+  pathway_overview: PathwayResult["pathway_overview"];
   analysis: GapAnalysis;
   gap_summary: PathwayResult["gap_summary"];
   roi_metrics: PathwayResult["roi_metrics"];
   mentorship_match: PathwayResult["mentorship_match"];
   sandbox_project: PathwayResult["sandbox_project"];
+  meta: AnalysisMeta;
 };
 
 export default function RoadmapVisualizer({
   pathway,
+  stages,
+  skill_gap_details,
+  pathway_overview,
   analysis,
   gap_summary,
   roi_metrics,
   mentorship_match,
   sandbox_project,
+  meta,
 }: Props) {
   const [quizSkill, setQuizSkill] = useState<string | null>(null);
   const [quizScores, setQuizScores] = useState<Record<string, number>>({});
 
+  const modeLabel = useMemo(() => {
+    if (meta.analysis_mode === "hybrid") return "Hybrid parsing";
+    if (meta.analysis_mode === "heuristic") return "Deterministic parsing";
+    return "Demo fallback";
+  }, [meta.analysis_mode]);
+
   useEffect(() => {
-    const el = document.getElementById("roadmap-top");
-    if (el) {
-      setTimeout(() => el.scrollIntoView({ behavior: "smooth" }), 200);
+    const anchor = document.getElementById("roadmap-top");
+    if (anchor) {
+      window.setTimeout(() => anchor.scrollIntoView({ behavior: "smooth", block: "start" }), 180);
     }
 
-    const totalDelay = 0.5 + pathway.length * 0.1 + 0.6;
-    const timer = setTimeout(() => {
+    const timer = window.setTimeout(() => {
       import("canvas-confetti").then((module) => {
         module.default({
-          particleCount: 180,
-          spread: 90,
+          particleCount: 140,
+          spread: 78,
           origin: { y: 0.88 },
-          colors: ["#3b82f6", "#10b981", "#8b5cf6"],
+          colors: ["#38bdf8", "#f59e0b", "#34d399"],
         });
       });
-    }, totalDelay * 1000);
+    }, 900);
 
     return () => clearTimeout(timer);
-  }, [pathway.length]);
+  }, []);
 
   return (
-    <motion.div id="roadmap-top" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full mt-24 pb-32">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
-          <Activity className="w-4 h-4 text-accent" />
-          <span className="text-sm font-semibold text-accent">Adaptive Onboarding Plan</span>
+    <motion.div id="roadmap-top" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-24 w-full pb-28">
+      <motion.div initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} className="mb-14 text-center">
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2">
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold text-primary">Adaptive onboarding plan ready</span>
         </div>
-        <h2 className="text-4xl md:text-5xl font-extrabold mb-4">
-          Your Dynamic <span className="text-gradient">Pathway</span>
+        <h2 className="mb-3 text-4xl font-extrabold md:text-5xl">
+          Personalized <span className="text-gradient">Training Roadmap</span>
         </h2>
-        <p className="text-slate-400 max-w-3xl mx-auto text-lg">
-          This roadmap is grounded in the internal catalog, sequenced with prerequisites, and calibrated against the
-          candidate&apos;s current proficiency versus target-role expectations.
-        </p>
-        <button
-          onClick={() => {
-            const events = pathway.map((step, index) => {
-              const date = new Date();
-              date.setDate(date.getDate() + 1 + index);
-              date.setHours(9, 0, 0, 0);
-              return {
-                title: step.title,
-                description: step.reasoning,
-                start: date,
-                durationHours: step.estimated_hours,
-              };
-            });
-            downloadICS(events, "CogniSync_Onboarding.ics");
-          }}
-          className="mt-6 inline-flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/40 transition-colors px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.15)]"
-        >
-          <Calendar className="w-4 h-4" />
-          Export Schedule to Calendar (.ics)
-        </button>
+        <p className="mx-auto max-w-3xl text-lg text-slate-300">{pathway_overview.explanation}</p>
+
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+          <Badge>{modeLabel}</Badge>
+          <Badge>{meta.role_track} track</Badge>
+          <Badge>{pathway_overview.timeframe}</Badge>
+          <button
+            onClick={() => {
+              const events = pathway.map((step, index) => {
+                const date = new Date();
+                date.setDate(date.getDate() + 1 + index);
+                date.setHours(9, 0, 0, 0);
+
+                return {
+                  title: step.title,
+                  description: step.reasoning,
+                  start: date,
+                  durationHours: step.estimated_hours,
+                };
+              });
+
+              downloadICS(events, "CogniSync_Onboarding.ics");
+            }}
+            className="inline-flex items-center gap-2 rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-colors hover:bg-accent/15"
+          >
+            <Calendar className="h-4 w-4" />
+            Export schedule
+          </button>
+        </div>
       </motion.div>
 
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-16">
+      <div className="mb-14 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         <MetricCard
-          icon={<Gauge className="w-8 h-8 text-emerald-400 mb-4" />}
-          title="Role Readiness"
+          icon={<Gauge className="mb-4 h-8 w-8 text-emerald-400" />}
+          title="Role readiness"
           value={`${gap_summary.role_readiness_score}%`}
-          note={`${Math.round(gap_summary.coverage_ratio * 100)}% of identified gaps are covered by grounded catalog modules.`}
-          accent="border-l-emerald-400"
+          note={`${Math.round(gap_summary.coverage_ratio * 100)}% of detected gaps are mapped to grounded modules.`}
         />
         <MetricCard
-          icon={<TrendingDown className="w-8 h-8 text-green-400 mb-4" />}
-          title="Training Time Saved"
+          icon={<Clock className="mb-4 h-8 w-8 text-primary" />}
+          title="Training load"
+          value={`${gap_summary.total_estimated_hours}h`}
+          note={`${pathway.length} module${pathway.length === 1 ? "" : "s"} across ${stages.length} staged ramp-up block${stages.length === 1 ? "" : "s"}.`}
+        />
+        <MetricCard
+          icon={<TrendingDown className="mb-4 h-8 w-8 text-green-400" />}
+          title="Time saved"
           value={`${roi_metrics.total_hours_saved}h`}
-          note={`Estimated budget saved: $${roi_metrics.budget_saved_usd.toLocaleString()} by bypassing ${roi_metrics.redundant_modules_bypassed} partially redundant modules.`}
-          accent="border-l-green-400"
+          note={`Estimated savings: $${roi_metrics.budget_saved_usd.toLocaleString()} and ${roi_metrics.redundant_modules_bypassed} redundant modules skipped.`}
         />
         <MetricCard
-          icon={<Users className="w-8 h-8 text-primary mb-4" />}
-          title="Mentor Assignment"
+          icon={<Users className="mb-4 h-8 w-8 text-accent" />}
+          title="Mentor"
           value={mentorship_match.name}
           note={`${mentorship_match.role}. ${mentorship_match.reason}`}
-          accent="border-l-primary"
-        />
-        <MetricCard
-          icon={<Target className="w-8 h-8 text-accent mb-4" />}
-          title="Sandbox Focus"
-          value={sandbox_project.title}
-          note={sandbox_project.description}
-          accent="border-l-accent"
         />
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-12 max-w-6xl mx-auto">
-        <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.35 }} className="lg:w-1/3 space-y-6">
-          <ProfileCard title="Candidate Profile" tone="green" items={analysis.candidate_profile} />
-          <ProfileCard title="Role Requirements" tone="violet" items={analysis.required_profile} />
-
-          <div className="glass-panel rounded-2xl p-6 border border-red-500/20">
-            <h3 className="text-lg font-bold flex items-center gap-2 mb-4">
-              <AlertCircle className="w-5 h-5 text-red-500" />
-              Gap Summary
-            </h3>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {analysis.missing_skills.map((skill) => (
-                <span
-                  key={skill}
-                  className="px-3 py-1 bg-red-500/10 text-red-400 text-xs font-semibold rounded-full border border-red-500/20"
-                >
-                  {skill}
-                </span>
-              ))}
+      <div className="grid gap-8 xl:grid-cols-[1.1fr_1.6fr]">
+        <div className="space-y-6">
+          <div className="glass-panel panel-outline rounded-[28px] p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-2 text-emerald-400">
+                <ShieldCheck className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Engine transparency</h3>
+                <p className="text-sm text-slate-400">What the system used to produce this pathway.</p>
+              </div>
             </div>
-            {gap_summary.unmatched_missing_skills.length > 0 ? (
-              <p className="text-sm text-amber-300 leading-relaxed">
-                Manual review required for: {gap_summary.unmatched_missing_skills.join(", ")}. These were intentionally
-                not converted into fabricated modules.
+            <div className="space-y-3 text-sm text-slate-300">
+              <p>
+                <span className="font-semibold text-white">Mode:</span> {modeLabel}
               </p>
-            ) : (
-              <p className="text-sm text-slate-300 leading-relaxed">
-                Every detected gap is mapped to at least one verified course from the catalog.
+              <p>
+                <span className="font-semibold text-white">Role track:</span> {meta.role_track}
               </p>
+              <p>
+                <span className="font-semibold text-white">Security flags:</span>{" "}
+                {meta.security.resume_flagged || meta.security.jd_flagged ? "Input sanitized" : "No suspicious input detected"}
+              </p>
+              <p>
+                <span className="font-semibold text-white">Rate limit remaining:</span> {meta.rate_limit.remaining}
+              </p>
+            </div>
+            {meta.warnings.length > 0 && (
+              <div className="mt-4 rounded-2xl border border-amber-400/20 bg-amber-400/10 p-4">
+                <p className="mb-2 text-sm font-semibold text-amber-200">Notes</p>
+                <div className="space-y-2 text-sm text-amber-100">
+                  {meta.warnings.map((warning) => (
+                    <p key={warning}>{warning}</p>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
 
-          <SkillRadar analysis={analysis} />
-        </motion.div>
+          <ProfileCard title="Candidate profile" tone="green" items={analysis.candidate_profile} />
+          <ProfileCard title="Role requirements" tone="amber" items={analysis.required_profile} />
 
-        <div className="lg:w-2/3 relative">
-          <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-slate-800" />
+          <div className="glass-panel panel-outline rounded-[28px] p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-2xl border border-red-400/20 bg-red-400/10 p-2 text-red-300">
+                <AlertCircle className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">Skill gap matrix</h3>
+                <p className="text-sm text-slate-400">Under-proficiency is treated as a gap, not only missing skills.</p>
+              </div>
+            </div>
 
-          <div className="space-y-10 relative">
-            {pathway.map((step, index) => (
-              <motion.div
-                key={step.id}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.45 + index * 0.1 }}
-                className="flex gap-6 relative"
-              >
-                <div className="relative z-10 flex-shrink-0 w-14 h-14 rounded-full bg-[#020617] border-[3px] border-primary flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                  <span className="font-bold text-primary">{index + 1}</span>
-                </div>
-
-                <div className="flex-1 glass-panel rounded-2xl p-6 group hover:border-primary/50 transition-colors">
-                  <div className="flex flex-col gap-4">
-                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+            <div className="space-y-3">
+              {skill_gap_details.length > 0 ? (
+                skill_gap_details.map((gap) => (
+                  <div
+                    key={gap.skill}
+                    className="rounded-2xl border border-white/8 bg-white/5 px-4 py-4"
+                  >
+                    <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
-                        <h4 className="text-xl font-bold text-white group-hover:text-primary transition-colors">{step.title}</h4>
-                        <p className="text-sm text-slate-400 mt-1">
-                          Targets {step.skills_targeted.join(", ") || "foundational readiness"} • {step.difficulty} level
+                        <p className="font-semibold text-white">{gap.skill}</p>
+                        <p className="mt-1 text-xs text-slate-400">
+                          Current: {gap.candidate_level === "not_observed" ? "Not observed" : gap.candidate_level} | Target:{" "}
+                          {gap.required_level}
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        {quizScores[step.title] !== undefined ? (
-                          <span
-                            className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border ${
-                              quizScores[step.title] === 3
-                                ? "bg-green-500/10 text-green-400 border-green-500/30"
-                                : quizScores[step.title] === 2
-                                  ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                                  : "bg-red-500/10 text-red-400 border-red-500/30"
-                            }`}
-                          >
-                            <CheckCircle2 className="w-3.5 h-3.5" />
-                            Scored: {quizScores[step.title]}/3
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => setQuizSkill(step.title)}
-                            className="flex items-center gap-1.5 text-sm font-bold text-accent bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20 hover:bg-accent/20 transition-colors"
-                          >
-                            <Layers className="w-4 h-4" />
-                            Test Knowledge
-                          </button>
-                        )}
-                        <span className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
-                          <Clock className="w-4 h-4" />
-                          {step.estimated_hours}h
-                        </span>
-                      </div>
+                      <span
+                        className={`rounded-full px-3 py-1 text-xs font-bold ${
+                          gap.severity === "critical"
+                            ? "bg-red-500/15 text-red-300"
+                            : gap.severity === "important"
+                              ? "bg-amber-400/15 text-amber-200"
+                              : "bg-slate-700 text-slate-200"
+                        }`}
+                      >
+                        {GAP_SEVERITY_LABEL[gap.severity]}
+                      </span>
                     </div>
-
-                    {step.prerequisites.length > 0 && (
-                      <p className="text-xs text-slate-400">
-                        Prerequisites: {step.prerequisites.join(", ")}
-                      </p>
+                    {gap.matched_course_ids.length > 0 ? (
+                      <p className="mt-3 text-xs text-slate-400">Mapped module: {gap.matched_course_ids.join(", ")}</p>
+                    ) : (
+                      <p className="mt-3 text-xs text-amber-200">No grounded module matched this skill. Manual review recommended.</p>
                     )}
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-4 text-sm text-emerald-100">
+                  No material gaps were detected. The candidate is already close to role readiness.
+                </div>
+              )}
+            </div>
+          </div>
 
-                    <div className="relative overflow-hidden p-4 bg-primary/5 border border-primary/10 rounded-xl flex items-start gap-3">
-                      <div className="absolute top-0 left-0 w-1 h-full bg-primary/50" />
-                      <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm text-slate-300 leading-relaxed">
-                          <span className="text-primary font-bold block mb-1">Reasoning Trace</span>
-                          <Typewriter text={step.reasoning} delay={0.55 + index * 0.1} />
-                        </p>
+          <SkillRadar analysis={analysis} />
+        </div>
+
+        <div className="space-y-6">
+          <div className="glass-panel panel-outline rounded-[28px] p-6">
+            <div className="mb-4 flex items-center gap-3">
+              <div className="rounded-2xl border border-primary/20 bg-primary/10 p-2 text-primary">
+                <Layers className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-bold text-white">{pathway_overview.title}</h3>
+                <p className="text-sm text-slate-400">{sandbox_project.description}</p>
+              </div>
+            </div>
+
+            <div className="grid gap-3 md:grid-cols-3">
+              {stages.map((stage) => (
+                <div key={stage.id} className="rounded-2xl border border-white/8 bg-white/5 p-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">{stage.title}</p>
+                  <p className="mt-3 text-2xl font-bold text-white">{stage.estimated_hours}h</p>
+                  <p className="mt-2 text-sm text-slate-400">{stage.objective}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="relative space-y-8">
+            <div className="absolute left-[27px] top-6 bottom-6 hidden w-px bg-slate-800 lg:block" />
+
+            {pathway.length > 0 ? (
+              pathway.map((step, index) => {
+                const quizKey = step.id;
+                const quizLabel = step.skills_targeted[0] ?? step.title;
+
+                return (
+                  <motion.div
+                    key={step.id}
+                    initial={{ opacity: 0, x: 24 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.12 + index * 0.07 }}
+                    className="relative flex gap-5"
+                  >
+                    <div className="relative z-10 hidden h-14 w-14 shrink-0 items-center justify-center rounded-full border-[3px] border-primary bg-[#06111d] shadow-[0_0_24px_rgba(56,189,248,0.2)] lg:flex">
+                      <span className="font-bold text-primary">{index + 1}</span>
+                    </div>
+
+                    <div className="glass-panel panel-outline flex-1 rounded-[28px] p-6">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                          <div>
+                            <div className="mb-3 flex flex-wrap items-center gap-2">
+                              <Badge>{step.stage}</Badge>
+                              <Badge>{step.difficulty}</Badge>
+                            </div>
+                            <h4 className="text-2xl font-bold text-white">{step.title}</h4>
+                            <p className="mt-2 text-sm leading-relaxed text-slate-400">
+                              Targets {step.skills_targeted.join(", ") || "role readiness"}.
+                            </p>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-2">
+                            {quizScores[quizKey] !== undefined ? (
+                              <span
+                                className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold ${
+                                  quizScores[quizKey] === 3
+                                    ? "bg-green-500/15 text-green-300"
+                                    : quizScores[quizKey] === 2
+                                      ? "bg-amber-400/15 text-amber-200"
+                                      : "bg-red-500/15 text-red-300"
+                                }`}
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5" />
+                                Score: {quizScores[quizKey]}/3
+                              </span>
+                            ) : (
+                              <button
+                                onClick={() => setQuizSkill(quizLabel)}
+                                className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-3 py-1.5 text-sm font-semibold text-accent transition-colors hover:bg-accent/15"
+                              >
+                                <Layers className="h-4 w-4" />
+                                Test knowledge
+                              </button>
+                            )}
+                            <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
+                              <Clock className="h-4 w-4" />
+                              {step.estimated_hours}h
+                            </span>
+                          </div>
+                        </div>
+
+                        {step.prerequisites.length > 0 && (
+                          <p className="text-xs text-slate-400">
+                            Prerequisites: {step.prerequisites.join(", ")}
+                          </p>
+                        )}
+
+                        {step.outcomes.length > 0 && (
+                          <div className="rounded-2xl border border-white/8 bg-black/10 p-4">
+                            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">Expected outcomes</p>
+                            <div className="space-y-1.5 text-sm text-slate-300">
+                              {step.outcomes.map((outcome) => (
+                                <p key={outcome}>{outcome}</p>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="rounded-2xl border border-primary/15 bg-primary/6 p-4">
+                          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-primary">Reasoning trace</p>
+                          <p className="text-sm leading-relaxed text-slate-300">{step.reasoning}</p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
+                  </motion.div>
+                );
+              })
+            ) : (
+              <div className="glass-panel panel-outline rounded-[28px] p-6 text-slate-300">
+                No catalog modules were required for this profile. Use the sandbox and mentor review as the final
+                readiness check.
+              </div>
+            )}
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.55 + pathway.length * 0.1 }}
-              className="flex gap-6 relative"
-            >
-              <div className="relative z-10 flex-shrink-0 w-14 h-14 rounded-full bg-green-500/10 border-[3px] border-green-500 flex items-center justify-center shadow-[0_0_20px_rgba(34,197,94,0.3)]">
-                <CheckCircle2 className="w-6 h-6 text-green-500" />
+            <div className="glass-panel panel-outline rounded-[28px] p-6">
+              <div className="flex items-start gap-4">
+                <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 p-3 text-emerald-400">
+                  <Target className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="text-lg font-bold text-white">{sandbox_project.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{sandbox_project.description}</p>
+                </div>
               </div>
-              <div className="flex flex-col justify-center">
-                <p className="text-xl font-bold text-green-400">Role Competency Path Established</p>
-                <p className="text-slate-400">
-                  The candidate now has a grounded, sequenced onboarding path toward independent execution.
-                </p>
-              </div>
-            </motion.div>
+            </div>
           </div>
         </div>
       </div>
 
       <KnowledgeQuizModal
         skill={quizSkill || ""}
-        isOpen={!!quizSkill}
+        isOpen={Boolean(quizSkill)}
         onClose={() => setQuizSkill(null)}
         onComplete={(score) => {
           if (quizSkill) {
-            setQuizScores((prev) => ({ ...prev, [quizSkill]: score }));
+            setQuizScores((current) => ({ ...current, [pathway.find((step) => (step.skills_targeted[0] ?? step.title) === quizSkill)?.id ?? quizSkill]: score }));
           }
         }}
       />
@@ -279,24 +402,22 @@ function MetricCard({
   title,
   value,
   note,
-  accent,
 }: {
   icon: React.ReactNode;
   title: string;
   value: string;
   note: string;
-  accent: string;
 }) {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={{ opacity: 0, scale: 0.96 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={`glass-panel p-6 rounded-3xl border-l-4 ${accent} relative overflow-hidden`}
+      className="glass-panel panel-outline rounded-[28px] p-6"
     >
       {icon}
-      <h3 className="text-slate-400 font-semibold mb-1">{title}</h3>
-      <p className="text-2xl font-extrabold text-white mb-2 leading-tight">{value}</p>
-      <p className="text-sm text-slate-300 leading-relaxed">{note}</p>
+      <p className="mb-1 text-sm font-semibold text-slate-400">{title}</p>
+      <p className="mb-2 text-2xl font-extrabold text-white">{value}</p>
+      <p className="text-sm leading-relaxed text-slate-300">{note}</p>
     </motion.div>
   );
 }
@@ -307,65 +428,45 @@ function ProfileCard({
   items,
 }: {
   title: string;
-  tone: "green" | "violet";
+  tone: "green" | "amber";
   items: GapAnalysis["candidate_profile"];
 }) {
-  const toneClasses =
+  const toneClass =
     tone === "green"
-      ? "border-green-500/20 text-green-400 bg-green-500/10"
-      : "border-accent/20 text-accent bg-accent/10";
+      ? "border-emerald-400/20 bg-emerald-400/10 text-emerald-200"
+      : "border-amber-400/20 bg-amber-400/10 text-amber-100";
 
   return (
-    <div className="glass-panel rounded-2xl p-6 border border-white/10">
-      <h3 className="text-lg font-bold mb-4 text-white">{title}</h3>
+    <div className="glass-panel panel-outline rounded-[28px] p-6">
+      <h3 className="mb-4 text-lg font-bold text-white">{title}</h3>
       <div className="space-y-3">
-        {items.map((item) => (
-          <div key={`${title}-${item.skill}`} className="rounded-xl border border-white/5 bg-white/5 px-4 py-3">
-            <div className="flex items-center justify-between gap-3">
-              <p className="font-semibold text-white">{item.skill}</p>
-              <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${toneClasses}`}>{item.level}</span>
+        {items.length > 0 ? (
+          items.map((item) => (
+            <div key={`${title}-${item.skill}`} className="rounded-2xl border border-white/8 bg-white/5 px-4 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <p className="font-semibold text-white">{item.skill}</p>
+                <span className={`rounded-full border px-3 py-1 text-xs font-bold ${toneClass}`}>{item.level}</span>
+              </div>
+              <p className="mt-2 text-xs leading-relaxed text-slate-400">
+                {typeof item.years === "number" ? `${item.years}+ years inferred` : "Years not confidently inferred"}
+                {item.evidence ? ` | ${item.evidence}` : ""}
+              </p>
             </div>
-            <p className="text-xs text-slate-400 mt-2">
-              {typeof item.years === "number" ? `${item.years}+ years inferred` : "Years not confidently inferred"}
-              {item.evidence ? ` • ${item.evidence}` : ""}
-            </p>
+          ))
+        ) : (
+          <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-4 text-sm text-slate-400">
+            No profile signals were extracted from this side of the input.
           </div>
-        ))}
+        )}
       </div>
     </div>
   );
 }
 
-function Typewriter({ text, delay }: { text: string; delay: number }) {
-  const [inView, setInView] = useState(false);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setInView(true), delay * 1000);
-    return () => clearTimeout(timer);
-  }, [delay]);
-
-  if (!inView) return <span className="opacity-0">{text}</span>;
-
+function Badge({ children }: { children: React.ReactNode }) {
   return (
-    <motion.span
-      initial="hidden"
-      animate="visible"
-      variants={{
-        visible: { transition: { staggerChildren: 0.01 } },
-        hidden: {},
-      }}
-    >
-      {text.split("").map((char, index) => (
-        <motion.span
-          key={index}
-          variants={{
-            visible: { opacity: 1, display: "inline" },
-            hidden: { opacity: 0, display: "none" },
-          }}
-        >
-          {char}
-        </motion.span>
-      ))}
-    </motion.span>
+    <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-sm font-semibold text-slate-200">
+      {children}
+    </span>
   );
 }

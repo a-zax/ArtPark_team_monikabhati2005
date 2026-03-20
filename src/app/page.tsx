@@ -34,8 +34,8 @@ export default function Home() {
           transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
           className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]"
         >
-          Hyper-Personalized <br className="hidden md:block" />
-          <span className="text-gradient drop-shadow-lg">Onboarding Pathways.</span>
+          Adaptive onboarding <br className="hidden md:block" />
+          <span className="text-gradient drop-shadow-lg">that respects what people already know.</span>
         </motion.h1>
 
         <motion.p 
@@ -44,7 +44,7 @@ export default function Home() {
           transition={{ delay: 0.4, duration: 1 }}
           className="max-w-2xl text-lg md:text-xl text-slate-400 mb-12 font-medium leading-relaxed"
         >
-          Eliminate &quot;one-size-fits-all&quot; corporate training. Our AI instantly parses your candidate&apos;s Resume against the Job Description to generate a dynamic, gap-free learning map.
+          Parse a resume, compare it to the target role, and generate a grounded ramp-up plan that closes only the skills that are still missing.
         </motion.p>
 
         <motion.div 
@@ -83,26 +83,26 @@ export default function Home() {
           className="text-center mb-16"
         >
           <h2 className="text-3xl md:text-5xl font-bold mb-4">Why CogniSync <span className="text-primary">AI</span>?</h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">Standard training wastes 40% of an experienced hire&apos;s time. Our engine surgically patches missing knowledge without any redundancy.</p>
+          <p className="text-slate-400 text-lg max-w-2xl mx-auto">Strong hires should skip what they already know. Newer hires should get the right scaffolding before they are asked to deliver.</p>
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
           <FeatureCard 
             icon={<BrainCircuit className="w-10 h-10 text-primary" />}
             title="Intelligent NLP Parsing"
-            description="We extract verified competencies directly from unstructured Resumes and JDs with zero hallucinations."
+            description="We extract grounded competencies from resumes and job descriptions, then normalize them into a role-ready profile."
             delay={0.1}
           />
           <FeatureCard 
             icon={<Crosshair className="w-10 h-10 text-accent" />}
             title="Precision Gap Analysis"
-            description="Calculates the exact overlap between what a candidate already knows and what the role demands."
+            description="Calculates where the candidate is already ready, where they are under-leveled, and where training is still required."
             delay={0.2}
           />
           <FeatureCard 
             icon={<Zap className="w-10 h-10 text-green-400" />}
             title="Adaptive Pathing"
-            description="Our custom algorithm maps your skill gaps to grounded internal courses, generating a verified timeline."
+            description="Our original pathing engine sequences catalog-backed modules with prerequisites, mentor support, and sandbox work."
             delay={0.3}
           />
         </div>
@@ -131,12 +131,12 @@ export default function Home() {
           <Step 
             num="02" 
             title="Analysis Engine" 
-            desc="Our models instantly identify core competencies. The logical engine processes missing proficiencies."
+            desc="The parser extracts current strengths and target expectations. The adaptive logic then calculates the real gap."
           />
           <Step 
             num="03" 
             title="Execute Pathway" 
-            desc="The finalized visual roadmap is generated. Review the 'Reasoning Trace' to understand exactly why each step was prescribed."
+            desc="A staged roadmap is generated with reasoning traces, mentor guidance, and a grounded sandbox project."
           />
         </div>
       </section>
@@ -146,7 +146,7 @@ export default function Home() {
 
       {/* CALL TO ACTION */}
       <section className="w-full py-32 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-8">Ready to transform onboarding?</h2>
+        <h2 className="text-4xl md:text-5xl font-bold mb-8">Ready to show adaptive onboarding in action?</h2>
         <Link href="/upload" className="inline-flex items-center gap-3 bg-white text-black px-10 py-5 rounded-full font-extrabold text-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
           Launch Live Demo <Activity className="w-6 h-6" />
         </Link>

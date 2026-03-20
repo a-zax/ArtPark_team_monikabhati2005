@@ -1,20 +1,19 @@
-import {
+import type {
   AnalysisMeta,
   GapAnalysis,
   GapSeverity,
   RoleTrack,
-  SKILL_LEVEL_WEIGHT,
   SkillGapDetail,
   SkillLevel,
   SkillProfile,
-  normalizeSkillName,
-} from '@/lib/analysis-types';
+} from './analysis-types.ts';
+import { SKILL_LEVEL_WEIGHT, normalizeSkillName } from './analysis-types.ts';
 import {
   canonicalizeSkill,
   extractSkillSignals,
   inferRoleTrackFromProfiles,
   normalizeProfile,
-} from '@/lib/skill-taxonomy';
+} from './skill-taxonomy.ts';
 
 export const FALLBACK_ANALYSIS: GapAnalysis = {
   candidate_profile: [

@@ -9,7 +9,8 @@
     "dev:open": "node scripts/dev-open.js",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "verify:logic": "node --no-warnings --experimental-strip-types --experimental-specifier-resolution=node scripts/verify-engine.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^9.96.1",

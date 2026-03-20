@@ -1,4 +1,5 @@
-import { RoleTrack, SKILL_LEVEL_WEIGHT, SkillLevel, SkillProfile, normalizeSkillName } from '@/lib/analysis-types';
+import type { RoleTrack, SkillLevel, SkillProfile } from './analysis-types.ts';
+import { SKILL_LEVEL_WEIGHT, normalizeSkillName } from './analysis-types.ts';
 
 type SkillDefinition = {
   canonical: string;

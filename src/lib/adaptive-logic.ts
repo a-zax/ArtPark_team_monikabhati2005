@@ -1,16 +1,18 @@
-import courseCatalog from './course-catalog.json';
-import {
+import { createRequire } from 'node:module';
+
+import type {
   GapAnalysis,
   LearningModule,
   PathwayResult,
   PathwayStage,
   PathwayStageId,
-  SKILL_LEVEL_WEIGHT,
   SkillGapDetail,
   SkillLevel,
-  normalizeSkillName,
-} from './analysis-types';
-import { deriveSkillGapDetails } from './analysis-engine';
+} from './analysis-types.ts';
+import { SKILL_LEVEL_WEIGHT, normalizeSkillName } from './analysis-types.ts';
+import { deriveSkillGapDetails } from './analysis-engine.ts';
+
+const require = createRequire(import.meta.url);
 
 type CatalogCourse = {
   id: string;
@@ -23,7 +25,7 @@ type CatalogCourse = {
   outcomes?: string[];
 };
 
-const catalog = courseCatalog as CatalogCourse[];
+const catalog = require('./course-catalog.json') as CatalogCourse[];
 const TRAINER_RATE_USD = 85;
 
 const STAGE_CONFIG: Record<PathwayStageId, { title: string; objective: string }> = {

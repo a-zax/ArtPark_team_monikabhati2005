@@ -32,9 +32,6 @@ export default function UploadPage() {
       const json = await res.json();
       if(json.success) {
         setResult(json.data);
-        setTimeout(() => {
-          document.getElementById('roadmap-section')?.scrollIntoView({ behavior: 'smooth' });
-        }, 100);
       }
     } catch(err) {
       console.error(err);
@@ -120,7 +117,7 @@ export default function UploadPage() {
         </button>
       </motion.div>
 
-      <div id="roadmap-section">
+      <div id="roadmap-section" className="scroll-mt-32">
         <AnimatePresence>
           {result && (
             <RoadmapVisualizer 

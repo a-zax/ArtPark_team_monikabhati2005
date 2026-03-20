@@ -12,6 +12,13 @@ const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 export const metadata: Metadata = {
   title: 'CogniSync AI | Adaptive Onboarding Engine',
   description: 'AI-driven, adaptive learning engine for hyper-personalized onboarding pathways.',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+    ],
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
 };
 
 export default function RootLayout({

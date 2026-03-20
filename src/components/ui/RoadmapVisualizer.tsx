@@ -43,6 +43,12 @@ export default function RoadmapVisualizer({
   const [quizScores, setQuizScores] = useState<Record<string, number>>({});
 
   useEffect(() => {
+    // Reliably scroll this component into view once the dynamic import has fully mounted
+    const el = document.getElementById("roadmap-top");
+    if (el) {
+      setTimeout(() => el.scrollIntoView({ behavior: 'smooth' }), 200);
+    }
+
     // Fire confetti when the roadmap fully generates
     const totalDelay = 0.5 + (pathway.length * 0.1) + 0.6;
     const timer = setTimeout(() => {
@@ -61,9 +67,10 @@ export default function RoadmapVisualizer({
 
   return (
     <motion.div 
+      id="roadmap-top"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="w-full mt-24 pb-32"
+      className="w-full mt-24 pb-32 scroll-mt-24"
     >
       <motion.div
         initial={{ opacity: 0, y: 20 }}

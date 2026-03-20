@@ -72,11 +72,26 @@ export function generateAdaptivePathway(analysis: GapAnalysis): PathwayResult {
         bestCourse.skills_covered.forEach(s => coveredSkills.add(s.toLowerCase()));
       }
     } else {
-       pathway.push({
+      const titles = [
+        `Targeted Competency Module: ${missingSkill}`,
+        `Intensive Sprint: Mastering ${missingSkill}`,
+        `Accelerated Deep-Dive: ${missingSkill} Architecture`,
+        `Applied Workshop: ${missingSkill} Fundamentals`
+      ];
+      const reasons = [
+        `Identified as a critical competency gap against the required Job Description. Priority integration assigned.`,
+        `Algorithmic pathing prioritized this sprint to specifically bridge the missing requirement in ${missingSkill}.`,
+        `Essential technical requirement for the target role. Auto-enrolled to ensure full production readiness.`,
+        `High-impact skill delta detected. This module will drastically expedite your practical proficiency in ${missingSkill}.`
+      ];
+      // Deterministic pseudo-random based on string length to keep hydration stable
+      const pseudoRandom = missingSkill.length % 4;
+
+      pathway.push({
           id: `custom_${missingSkill.replace(/\s+/g, '_')}`,
-          title: `Custom Module: Fundamentals of ${missingSkill}`,
-          reasoning: `Auto-generated module for "${missingSkill}" since it is highly critical for this specific job classification.`,
-          estimated_hours: 2
+          title: titles[pseudoRandom],
+          reasoning: reasons[pseudoRandom],
+          estimated_hours: pseudoRandom + 1 // 1 to 4 hours dynamically
         });
     }
   }

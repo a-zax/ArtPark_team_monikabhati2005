@@ -49,24 +49,34 @@ async function main() {
     return;
   }
 
-  const command = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-  const args = ['run', 'dev'];
+  const command = process.platform === 'win32' ? 'cmd.exe' : 'npm';
+  const args =
+    process.platform === 'win32'
+      ? ['/d', '/s', '/c', 'npm run dev']
+      : ['run', 'dev'];
 
   const next = spawn(command, args, {
     stdio: ['inherit', 'pipe', 'pipe'],
   });
 
   let opened = false;
+  let sawReady = false;
 
   const handleLine = (line) => {
     process.stdout.write(`${line}\n`);
 
-    if (!opened) {
-      const match = line.match(/Local:\s+(http:\/\/localhost:\d+)/i);
-      if (match) {
-        opened = true;
-        openBrowser(match[1]);
-      }
+    const urlMatch = line.match(/Local:\s+(http:\/\/localhost:\d+)/i);
+    if (urlMatch) {
+      main.localUrl = urlMatch[1];
+    }
+
+    if (/ready in/i.test(line)) {
+      sawReady = true;
+    }
+
+    if (!opened && sawReady && main.localUrl) {
+      opened = true;
+      openBrowser(main.localUrl);
     }
   };
 
@@ -80,4 +90,5 @@ async function main() {
   });
 }
 
+main.localUrl = null;
 main();

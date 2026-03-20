@@ -23,6 +23,15 @@ body {
   position: relative;
 }
 
+.preloader-shell {
+  background: #020617;
+}
+
+.preloader-bar {
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
+  transition: width 0.08s linear;
+}
+
 body::before {
   content: "";
   position: absolute;

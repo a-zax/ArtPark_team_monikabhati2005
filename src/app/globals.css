@@ -23,14 +23,7 @@ body {
   position: relative;
 }
 
-.preloader-shell {
-  background: #020617;
-}
-
-.preloader-bar {
-  box-shadow: 0 0 12px rgba(59, 130, 246, 0.8);
-  transition: width 0.08s linear;
-}
+/* Preloader styles managed via Framer Motion in Preloader.tsx */
 
 body::before {
   content: "";
@@ -83,3 +76,5 @@ body::before {
   scrollbar-width: thin;
   scrollbar-color: rgba(59, 130, 246, 0.35) transparent;
 }
+
+/* Keyframes managed via Framer Motion in Preloader.tsx */

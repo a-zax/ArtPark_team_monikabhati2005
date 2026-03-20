@@ -1,92 +1,127 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 const STAGES = [
-  "Parsing skill matrices...",
-  "Mounting WebGL environments...",
-  "Loading course catalog...",
-  "Calibrating AI engine...",
-  "Ready.",
+  "Initializing neural engines...",
+  "Calibrating skill gap analysis...",
+  "Syncing corporate catalog...",
+  "Mounting 3D environments...",
+  "Engine Ready.",
 ];
-
-const MIN_VISIBLE_MS = 2800;
-const FAILSAFE_HIDE_MS = 6500;
 
 export default function Preloader() {
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState(0);
-  const [isClosing, setIsClosing] = useState(false);
-  const [isHidden, setIsHidden] = useState(false);
+  const [done, setDone] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    let current = 0;
+    setMounted(true);
+    
+    // Safety exit: force clear after 10 seconds if something stalls
+    const safety = setTimeout(() => {
+      setDone(true);
+    }, 10000);
 
-    const interval = window.setInterval(() => {
-      current = Math.min(current + 2, 100);
-      setProgress(current);
-      setStage(Math.min(STAGES.length - 1, Math.floor(current / 20)));
+    const interval = setInterval(() => {
+      setProgress((prev) => {
+        if (prev >= 100) {
+          clearInterval(interval);
+          clearTimeout(safety);
+          setTimeout(() => setDone(true), 800);
+          return 100;
+        }
 
-      if (current >= 100) {
-        window.clearInterval(interval);
-      }
-    }, 45);
-
-    const closeTimer = window.setTimeout(() => {
-      setProgress(100);
-      setStage(STAGES.length - 1);
-      setIsClosing(true);
-      window.setTimeout(() => setIsHidden(true), 650);
-    }, MIN_VISIBLE_MS);
-
-    const failsafeTimer = window.setTimeout(() => {
-      setIsHidden(true);
-    }, FAILSAFE_HIDE_MS);
+        // Snap logic
+        const next = prev + Math.max(1, Math.floor((101 - prev) / 6));
+        const limitedNext = Math.min(100, next);
+        
+        setStage(Math.min(STAGES.length - 1, Math.floor(limitedNext / 21)));
+        
+        // Debug for the user in console
+        if (limitedNext % 10 === 0) {
+          console.log(`[CogniSync] Initialization progress: ${limitedNext}%`);
+        }
+        
+        return limitedNext;
+      });
+    }, 80);
 
     return () => {
-      window.clearInterval(interval);
-      window.clearTimeout(closeTimer);
-      window.clearTimeout(failsafeTimer);
+      clearInterval(interval);
+      clearTimeout(safety);
     };
   }, []);
 
-  if (isHidden) {
-    return null;
-  }
+  if (!mounted) return null;
+
 
   return (
-    <div
-      className={`preloader-shell fixed inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden transition-all duration-700 ${
-        isClosing ? "opacity-0 pointer-events-none scale-[1.02]" : "opacity-100"
-      }`}
-    >
-      <div className="absolute top-0 left-0 right-0 h-[10px] bg-primary/30" />
-      <div className="absolute bottom-0 left-0 right-0 h-[10px] bg-primary/30" />
-
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-primary/15 blur-[160px] rounded-full -translate-y-1/2 pointer-events-none" />
-
-      <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm px-8">
-        <div className="text-center">
-          <p className="text-xs tracking-[0.5em] text-primary/70 uppercase font-mono mb-2">ArtPark CodeForge 2026</p>
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">
-            CogniSync <span className="text-primary">AI</span>
-          </h1>
-        </div>
-
-        <div
-          className="tabular-nums font-black text-[96px] leading-none text-white tracking-tighter select-none"
-          style={{ textShadow: "0 0 60px rgba(59,130,246,0.4)" }}
+    <AnimatePresence mode="wait">
+      {!done && (
+        <motion.div
+          key="preloader"
+          initial={{ opacity: 1 }}
+          exit={{ 
+            clipPath: "inset(0 0 100% 0)", 
+            opacity: 0,
+            transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] }
+          }}
+          className="fixed inset-0 z-[999] bg-[#020617] flex flex-col items-center justify-center overflow-hidden"
         >
-          {progress}
-          <span className="text-3xl font-bold text-primary">%</span>
-        </div>
+          {/* Top & Bottom cinematic bars */}
+          <div className="absolute top-0 left-0 right-0 h-[8px] bg-primary/20" />
+          <div className="absolute bottom-0 left-0 right-0 h-[8px] bg-primary/20" />
 
-        <div className="w-full h-[3px] bg-slate-800 rounded-full overflow-hidden">
-          <div className="preloader-bar h-full bg-primary rounded-full" style={{ width: `${progress}%` }} />
-        </div>
+          {/* Ambient glow */}
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-primary/10 blur-[160px] rounded-full -translate-y-1/2 pointer-events-none" />
 
-        <p className="text-xs text-slate-500 font-mono tracking-widest uppercase">{STAGES[stage]}</p>
-      </div>
-    </div>
+          <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm px-8">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="text-center"
+            >
+              <p className="text-[10px] tracking-[0.4em] text-primary/60 uppercase font-mono mb-2">ArtPark CodeForge 2026</p>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight">
+                CogniSync <span className="text-primary">AI</span>
+              </h1>
+            </motion.div>
+
+            {/* Giant counter */}
+            <div className="tabular-nums font-black text-[110px] leading-none text-white tracking-tighter select-none" style={{ textShadow: "0 0 50px rgba(59,130,246,0.3)" }}>
+              {progress}
+              <span className="text-3xl font-bold text-primary ml-1">%</span>
+            </div>
+
+            <div className="w-full h-[2px] bg-slate-800/50 rounded-full overflow-hidden">
+              <motion.div
+                className="h-full bg-primary"
+                initial={{ width: 0 }}
+                animate={{ width: `${progress}%` }}
+                transition={{ type: "spring", stiffness: 50, damping: 15 }}
+                style={{ boxShadow: "0 0 15px rgba(59,130,246,0.6)" }}
+              />
+            </div>
+
+            <AnimatePresence mode="wait">
+              <motion.p
+                key={stage}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3 }}
+                className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase"
+              >
+                {STAGES[stage]}
+              </motion.p>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }

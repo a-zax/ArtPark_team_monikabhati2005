@@ -1,120 +1,187 @@
 import courseCatalog from './course-catalog.json';
+import {
+  GapAnalysis,
+  LearningModule,
+  PathwayResult,
+  SKILL_LEVEL_WEIGHT,
+  SkillLevel,
+  normalizeSkillName,
+} from './analysis-types';
 
-export interface GapAnalysis {
-  candidate_skills: string[];
-  required_skills: string[];
-  missing_skills: string[];
-}
-
-export interface LearningModule {
+type CatalogCourse = {
   id: string;
   title: string;
-  reasoning: string;
+  skills_covered: string[];
+  difficulty: SkillLevel;
   estimated_hours: number;
+  prerequisites?: string[];
+  role_tags?: string[];
+};
+
+const catalog = courseCatalog as CatalogCourse[];
+const TRAINER_RATE_USD = 85;
+
+function buildKnownSkillSet(analysis: GapAnalysis) {
+  return new Set(analysis.candidate_skills.map(normalizeSkillName));
 }
 
-export interface PathwayResult {
-  pathway: LearningModule[];
-  roi_metrics: {
-    total_hours_saved: number;
-    budget_saved_usd: number;
-    redundant_modules_bypassed: number;
-  };
-  mentorship_match: {
-    name: string;
-    role: string;
-    reason: string;
-  };
-  sandbox_project: {
-    title: string;
-    description: string;
+function getRequiredLevel(analysis: GapAnalysis, skill: string): SkillLevel {
+  const profile = analysis.required_profile.find(
+    (item) => normalizeSkillName(item.skill) === normalizeSkillName(skill),
+  );
+  return profile?.level ?? 'intermediate';
+}
+
+function scoreCourse(course: CatalogCourse, skill: string, analysis: GapAnalysis): number {
+  const normalizedSkill = normalizeSkillName(skill);
+  const exactMatch = course.skills_covered.some((coveredSkill) => normalizeSkillName(coveredSkill) === normalizedSkill);
+  const requiredLevel = SKILL_LEVEL_WEIGHT[getRequiredLevel(analysis, skill)];
+  const difficultyLevel = SKILL_LEVEL_WEIGHT[course.difficulty];
+  const levelDistance = Math.abs(requiredLevel - difficultyLevel);
+  const breadthBonus = Math.min(course.skills_covered.length, 4);
+
+  return (exactMatch ? 100 : 0) + breadthBonus - levelDistance * 5;
+}
+
+function resolveCoursePath(courseId: string, selectedIds: Set<string>) {
+  const course = catalog.find((item) => item.id === courseId);
+  if (!course) return;
+
+  for (const prereq of course.prerequisites ?? []) {
+    resolveCoursePath(prereq, selectedIds);
+  }
+
+  selectedIds.add(courseId);
+}
+
+function mapCourses(analysis: GapAnalysis) {
+  const selectedIds = new Set<string>();
+  const matchedMissingSkills = new Set<string>();
+  const unmatchedMissingSkills: string[] = [];
+
+  for (const skill of analysis.missing_skills) {
+    const candidates = catalog
+      .filter((course) =>
+        course.skills_covered.some((coveredSkill) => normalizeSkillName(coveredSkill) === normalizeSkillName(skill)),
+      )
+      .sort((a, b) => scoreCourse(b, skill, analysis) - scoreCourse(a, skill, analysis));
+
+    const bestCourse = candidates[0];
+    if (!bestCourse) {
+      unmatchedMissingSkills.push(skill);
+      continue;
+    }
+
+    matchedMissingSkills.add(skill);
+    resolveCoursePath(bestCourse.id, selectedIds);
+  }
+
+  return {
+    matchedMissingSkills: Array.from(matchedMissingSkills),
+    unmatchedMissingSkills,
+    selectedCourses: catalog.filter((course) => selectedIds.has(course.id)),
   };
 }
 
-/**
- * Advanced Holistic Pathing Algorithm:
- * Identifies explicit skill gaps, tracks redundacy ROI, assigns mentorship, and constructs the DAG.
- */
-export function generateAdaptivePathway(analysis: GapAnalysis): PathwayResult {
-  const pathway: LearningModule[] = [];
-  const coveredSkills = new Set<string>();
+function buildReasoning(course: CatalogCourse, analysis: GapAnalysis): string {
+  const targetedSkills = course.skills_covered.filter((skill) =>
+    analysis.missing_skills.map(normalizeSkillName).includes(normalizeSkillName(skill)),
+  );
+  const prerequisiteText =
+    course.prerequisites && course.prerequisites.length > 0
+      ? `Prerequisites included: ${course.prerequisites.join(', ')}.`
+      : 'No prerequisite modules were required ahead of this step.';
+
+  return `Assigned from the grounded catalog to close ${targetedSkills.join(', ')}. Difficulty set to ${course.difficulty} based on the target role expectation. ${prerequisiteText}`;
+}
+
+function calculateRoi(analysis: GapAnalysis) {
+  const knownSkills = buildKnownSkillSet(analysis);
   let bypassedHours = 0;
   let bypassedModules = 0;
 
-  // 1. Calculate ROI by finding modules the candidate ALREADY knows
-  for (const course of courseCatalog) {
-    const candidateKnowsSomething = course.skills_covered.some(skill => 
-      analysis.candidate_skills.map(s => s.toLowerCase()).includes(skill.toLowerCase())
-    );
-    // If they already know aspects of this course, we bypass it for them.
-    if (candidateKnowsSomething) {
-      bypassedHours += course.estimated_hours;
+  for (const course of catalog) {
+    const covered = course.skills_covered;
+    const knownCoverage = covered.filter((skill) => knownSkills.has(normalizeSkillName(skill))).length;
+    if (knownCoverage === 0) continue;
+
+    const coverageRatio = knownCoverage / covered.length;
+    if (coverageRatio >= 0.5) {
+      bypassedHours += Math.round(course.estimated_hours * coverageRatio);
       bypassedModules += 1;
     }
   }
 
-  // 2. Map the exact missing skills to Grounded Courses
-  for (const missingSkill of analysis.missing_skills) {
-    if (coveredSkills.has(missingSkill.toLowerCase())) continue;
+  return {
+    total_hours_saved: bypassedHours,
+    budget_saved_usd: bypassedHours * TRAINER_RATE_USD,
+    redundant_modules_bypassed: bypassedModules,
+  };
+}
 
-    const bestCourse = courseCatalog.find(c => 
-      c.skills_covered.some(s => s.toLowerCase() === missingSkill.toLowerCase())
-    );
+function pickTopGap(analysis: GapAnalysis) {
+  return (
+    analysis.required_profile
+      .filter((item) => analysis.missing_skills.map(normalizeSkillName).includes(normalizeSkillName(item.skill)))
+      .sort((a, b) => SKILL_LEVEL_WEIGHT[b.level] - SKILL_LEVEL_WEIGHT[a.level])[0]?.skill ??
+    analysis.missing_skills[0] ??
+    'role-specific onboarding'
+  );
+}
 
-    if (bestCourse) {
-      if (!pathway.find(p => p.id === bestCourse.id)) {
-        pathway.push({
-          id: bestCourse.id,
-          title: bestCourse.title,
-          reasoning: `Recommended to bridge the explicitly missing gap in "${missingSkill}". Evaluated against JD requirements.`,
-          estimated_hours: bestCourse.estimated_hours
-        });
-        bestCourse.skills_covered.forEach(s => coveredSkills.add(s.toLowerCase()));
-      }
-    } else {
-      const titles = [
-        `Targeted Competency Module: ${missingSkill}`,
-        `Intensive Sprint: Mastering ${missingSkill}`,
-        `Accelerated Deep-Dive: ${missingSkill} Architecture`,
-        `Applied Workshop: ${missingSkill} Fundamentals`
-      ];
-      const reasons = [
-        `Identified as a critical competency gap against the required Job Description. Priority integration assigned.`,
-        `Algorithmic pathing prioritized this sprint to specifically bridge the missing requirement in ${missingSkill}.`,
-        `Essential technical requirement for the target role. Auto-enrolled to ensure full production readiness.`,
-        `High-impact skill delta detected. This module will drastically expedite your practical proficiency in ${missingSkill}.`
-      ];
-      // Deterministic pseudo-random based on string length to keep hydration stable
-      const pseudoRandom = missingSkill.length % 4;
+export function generateAdaptivePathway(analysis: GapAnalysis): PathwayResult {
+  const { matchedMissingSkills, unmatchedMissingSkills, selectedCourses } = mapCourses(analysis);
+  const readinessPenalty = matchedMissingSkills.length * 8 + unmatchedMissingSkills.length * 18;
+  const roleReadinessScore = Math.max(25, 100 - readinessPenalty);
+  const coverageRatio =
+    analysis.missing_skills.length === 0
+      ? 1
+      : matchedMissingSkills.length / analysis.missing_skills.length;
 
-      pathway.push({
-          id: `custom_${missingSkill.replace(/\s+/g, '_')}`,
-          title: titles[pseudoRandom],
-          reasoning: reasons[pseudoRandom],
-          estimated_hours: pseudoRandom + 1 // 1 to 4 hours dynamically
-        });
-    }
-  }
+  const pathway: LearningModule[] = selectedCourses.map((course) => ({
+    id: course.id,
+    title: course.title,
+    reasoning: buildReasoning(course, analysis),
+    estimated_hours: course.estimated_hours,
+    difficulty: course.difficulty,
+    skills_targeted: course.skills_covered.filter((skill) =>
+      analysis.missing_skills.map(normalizeSkillName).includes(normalizeSkillName(skill)),
+    ),
+    prerequisites: course.prerequisites ?? [],
+    grounding: 'catalog',
+  }));
 
-  // 3. Dynamic Sandbox & Mentorship Engineering (The Wow-Factor)
-  const coreGaps = analysis.missing_skills.slice(0, 2).join(' and ');
-  const topGap = analysis.missing_skills[0] || "Advanced Systems";
-  
+  const topGap = pickTopGap(analysis);
+  const sandboxSkills = matchedMissingSkills.slice(0, 3);
+  const sandboxFocus = sandboxSkills.length > 0 ? sandboxSkills.join(', ') : topGap;
+  const mentorRoleBase = getRequiredLevel(analysis, topGap);
+  const mentorTitle =
+    mentorRoleBase === 'advanced'
+      ? 'Principal Mentor'
+      : mentorRoleBase === 'intermediate'
+        ? 'Senior Mentor'
+        : 'Onboarding Coach';
+
   return {
     pathway,
-    roi_metrics: {
-      total_hours_saved: bypassedHours > 0 ? bypassedHours : 45,
-      budget_saved_usd: (bypassedHours > 0 ? bypassedHours : 45) * 85, // Assuming $85/hr enterprise training cost
-      redundant_modules_bypassed: bypassedModules > 0 ? bypassedModules : 4
+    gap_summary: {
+      role_readiness_score: roleReadinessScore,
+      coverage_ratio: Number(coverageRatio.toFixed(2)),
+      matched_missing_skills: matchedMissingSkills,
+      unmatched_missing_skills: unmatchedMissingSkills,
     },
+    roi_metrics: calculateRoi(analysis),
     mentorship_match: {
-      name: "Dr. Elena Rostova",
-      role: `Principal Engineer & ${topGap} SME`,
-      reason: `Elena is the internal Subject Matter Expert for ${topGap}. She has been auto-assigned as your Day-1 integration buddy to accelerate your specific competency gaps.`
+      name: mentorRoleBase === 'advanced' ? 'Avery Rao' : mentorRoleBase === 'intermediate' ? 'Jordan Kim' : 'Samira Patel',
+      role: `${mentorTitle} for ${topGap}`,
+      reason: `Assigned because ${topGap} is the highest-priority remaining competency gap and needs guided ramp-up before independent delivery.`,
     },
     sandbox_project: {
-      title: `Day 1 Sandbox: Micro-Deployment in ${coreGaps}`,
-      description: `Instead of just reading theory, your first task is a sandboxed, low-risk codebase to practically apply your missing proficiencies in ${coreGaps} before touching production.`
-    }
+      title: `Guided onboarding project for ${sandboxFocus}`,
+      description:
+        unmatchedMissingSkills.length > 0
+          ? `The initial sandbox focuses on catalog-covered gaps in ${sandboxFocus}, while unmatched requirements (${unmatchedMissingSkills.join(', ')}) are flagged for mentor-led calibration rather than hallucinated modules.`
+          : `The sandbox converts the identified gaps in ${sandboxFocus} into a practical assignment so the learner demonstrates competency, not just course completion.`,
+    },
   };
 }

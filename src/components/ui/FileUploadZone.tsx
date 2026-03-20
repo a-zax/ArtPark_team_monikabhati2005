@@ -79,7 +79,7 @@ export default function FileUploadZone({ accept, onFileSelect, selectedFile }: F
         Click or drag file to upload
       </p>
       <p className="text-sm text-slate-500 mt-2 text-center max-w-[80%]">
-        Supported formats: PDF, DOCX, TXT. <br /> Max size: 10MB
+        Supported formats: PDF, DOCX, TXT. <br /> Max size: 5MB
       </p>
     </motion.div>
   );

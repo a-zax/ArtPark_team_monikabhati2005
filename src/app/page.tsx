@@ -75,7 +75,7 @@ export default function Home() {
       </section>
 
       {/* 2. FEATURES SECTION */}
-      <section id="features" className="w-full pt-20 pb-32 scroll-mt-24">
+      <section id="features" className="w-full min-h-[90vh] flex flex-col justify-center pt-20 pb-32 scroll-mt-24">
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -109,7 +109,7 @@ export default function Home() {
       </section>
 
       {/* 3. HOW IT WORKS SECTION */}
-      <section id="how-it-works" className="w-full py-20 relative scroll-mt-24">
+      <section id="how-it-works" className="w-full min-h-[90vh] pt-20 pb-32 relative scroll-mt-24 flex flex-col justify-center">
         <ParticleGlobe />
         <div className="absolute inset-0 bg-slate-900/40 skew-y-3 -z-10 border-y border-white/5" />
         

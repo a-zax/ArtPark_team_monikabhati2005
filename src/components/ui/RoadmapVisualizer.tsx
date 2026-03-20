@@ -1,8 +1,11 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, AlertCircle, Clock, Info, TrendingDown, Users, Target, Activity } from "lucide-react";
+import { CheckCircle2, AlertCircle, Clock, Info, TrendingDown, Users, Target, Activity, Calendar, Layers } from "lucide-react";
 import { useEffect, useState } from "react";
+import SkillRadar from "./SkillRadar";
+import KnowledgeQuizModal from "./KnowledgeQuizModal";
+import { downloadICS } from "@/lib/ics";
 
 interface PathwayStep {
   id: string;
@@ -36,6 +39,7 @@ export default function RoadmapVisualizer({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sandbox_project: any
 }) {
+  const [quizSkill, setQuizSkill] = useState<string | null>(null);
 
   useEffect(() => {
     // Fire confetti when the roadmap fully generates
@@ -73,6 +77,21 @@ export default function RoadmapVisualizer({
         <p className="text-slate-400 max-w-2xl mx-auto text-lg">
           We&apos;ve completely bypassed generic onboarding. Below is your optimized curriculum, assigned mentorship, and exact corporate ROI calculation based purely on your missing gaps.
         </p>
+        <button 
+          onClick={() => {
+            const events = pathway.map((s, i) => {
+               const d = new Date();
+               d.setDate(d.getDate() + 1 + i);
+               d.setHours(9, 0, 0, 0);
+               return { title: s.title, description: s.reasoning, start: d, durationHours: s.estimated_hours };
+            });
+            downloadICS(events, "SyncPath_Onboarding.ics");
+          }}
+          className="mt-6 inline-flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/40 transition-colors px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.15)]"
+        >
+          <Calendar className="w-4 h-4" />
+          Export Schedule to Calendar (.ics)
+        </button>
       </motion.div>
 
       {/* NEW: Corporate ROI & Mentorship Dashboard */}
@@ -155,6 +174,14 @@ export default function RoadmapVisualizer({
               ))}
             </div>
           </div>
+          
+          <div className="mt-8">
+            <SkillRadar 
+              candidateSkills={analysis.candidate_skills}
+              requiredSkills={analysis.required_skills}
+              missingSkills={analysis.missing_skills}
+            />
+          </div>
         </motion.div>
 
         {/* Vertical Timeline */}
@@ -177,10 +204,19 @@ export default function RoadmapVisualizer({
                   <div className="flex-1 glass-panel rounded-2xl p-6 group hover:border-primary/50 transition-colors">
                     <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-2">
                       <h4 className="text-xl font-bold text-white group-hover:text-primary transition-colors">{step.title}</h4>
-                      <span className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20 flex-shrink-0">
-                        <Clock className="w-4 h-4" />
-                        {step.estimated_hours}h
-                      </span>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        <button 
+                          onClick={() => setQuizSkill(step.title)}
+                          className="flex items-center gap-1.5 text-sm font-bold text-accent bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20 hover:bg-accent/20 transition-colors shadow-[0_0_15px_rgba(139,92,246,0.2)]"
+                        >
+                          <Layers className="w-4 h-4" />
+                          Test Knowledge
+                        </button>
+                        <span className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
+                          <Clock className="w-4 h-4" />
+                          {step.estimated_hours}h
+                        </span>
+                      </div>
                     </div>
 
                     {/* Reasoning Trace Component */}
@@ -216,6 +252,12 @@ export default function RoadmapVisualizer({
            </div>
         </div>
       </div>
+
+      <KnowledgeQuizModal 
+        skill={quizSkill || ''} 
+        isOpen={!!quizSkill} 
+        onClose={() => setQuizSkill(null)} 
+      />
     </motion.div>
   );
 }

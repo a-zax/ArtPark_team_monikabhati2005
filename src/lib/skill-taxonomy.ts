@@ -133,7 +133,7 @@ function roleTrackFromSignals(signals: SkillSignal[], fallbackText: string): Rol
   }
 
   if (counts.size > 0) {
-    return [counts.entries().sort((a, b) => b[1] - a[1])[0][0]];
+    return Array.from(counts.entries()).sort((a, b) => b[1] - a[1])[0][0];
   }
 
   const lowered = normalizeSkillName(fallbackText);

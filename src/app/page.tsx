@@ -1,9 +1,10 @@
 "use client";
 
-import { motion } from 'framer-motion';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, FileText, Blocks, Zap, Crosshair, BrainCircuit, Activity } from 'lucide-react';
 import Link from 'next/link';
 import MagneticButton from '@/components/ui/MagneticButton';
+import ParticleGlobe from '@/components/ui/ParticleGlobe';
 
 export default function Home() {
   return (
@@ -106,6 +107,7 @@ export default function Home() {
 
       {/* 3. HOW IT WORKS SECTION */}
       <section id="how-it-works" className="w-full py-20 relative scroll-mt-24">
+        <ParticleGlobe />
         <div className="absolute inset-0 bg-slate-900/40 skew-y-3 -z-10 border-y border-white/5" />
         
         <motion.div 
@@ -148,19 +150,53 @@ export default function Home() {
 }
 
 function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: number }) {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const width = rect.width;
+    const height = rect.height;
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+    const xPct = mouseX / width - 0.5;
+    const yPct = mouseY / height - 0.5;
+    x.set(xPct);
+    y.set(yPct);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-50px" }}
       transition={{ delay, duration: 0.5 }}
-      className="glass-panel p-8 rounded-3xl flex flex-col items-start hover:border-primary/50 transition-colors group"
+      style={{ perspective: 1200 }}
+      className="group relative h-full w-full cursor-pointer"
     >
-      <div className="p-4 rounded-2xl bg-white/5 mb-6 group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-300">
-        {icon}
-      </div>
-      <h3 className="text-2xl font-bold mb-3">{title}</h3>
-      <p className="text-slate-400 leading-relaxed font-medium">{description}</p>
+      <motion.div
+        onMouseMove={handleMouseMove}
+        onMouseLeave={handleMouseLeave}
+        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+        className="glass-panel p-8 rounded-3xl flex flex-col items-start h-full border border-white/5 bg-slate-900/40 hover:bg-slate-800/60 transition-colors"
+      >
+        <div style={{ transform: "translateZ(70px)" }} className="p-4 rounded-2xl bg-white/5 mb-6 group-hover:bg-primary/20 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+          {icon}
+        </div>
+        <h3 style={{ transform: "translateZ(40px)" }} className="text-2xl font-bold mb-3 drop-shadow-md">{title}</h3>
+        <p style={{ transform: "translateZ(20px)" }} className="text-slate-400 leading-relaxed font-medium">{description}</p>
+      </motion.div>
     </motion.div>
   );
 }

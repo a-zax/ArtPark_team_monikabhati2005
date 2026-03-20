@@ -5,6 +5,7 @@ import FileUploadZone from "@/components/ui/FileUploadZone";
 import RoadmapVisualizer from "@/components/ui/RoadmapVisualizer";
 import { useState } from "react";
 import { ArrowRight, FileCheck2, Loader2 } from "lucide-react";
+import AICrystal from "@/components/ui/AICrystal";
 
 export default function UploadPage() {
   const [resume, setResume] = useState<File | null>(null);
@@ -41,7 +42,9 @@ export default function UploadPage() {
   };
 
   return (
-    <div className="max-w-6xl mx-auto w-full pt-4">
+    <div className="max-w-6xl mx-auto w-full pt-4 relative">
+      <AICrystal />
+      
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -121,6 +124,9 @@ export default function UploadPage() {
             <RoadmapVisualizer 
                pathway={result.pathway} 
                analysis={result.analysis} 
+               roi_metrics={result.roi_metrics}
+               mentorship_match={result.mentorship_match}
+               sandbox_project={result.sandbox_project}
             />
           )}
         </AnimatePresence>

@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Outfit } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/Header';
+import HeroConstellation from '@/components/ui/HeroConstellation';
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
@@ -17,9 +18,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark">
-      <body className={`${outfit.variable} font-sans antialiased text-foreground min-h-screen flex flex-col overflow-x-hidden`}>
+      <body className={`${outfit.variable} font-sans antialiased text-foreground min-h-screen flex flex-col overflow-x-hidden relative`}>
         {/* Deep, glowing background radial gradient */}
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-background to-background -z-20 pointer-events-none" />
+        
+        {/* Global 3D Interactive Layer */}
+        <div className="fixed inset-0 z-0 pointer-events-none">
+          <HeroConstellation />
+        </div>
         
         <Header />
         

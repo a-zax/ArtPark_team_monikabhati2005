@@ -46,6 +46,7 @@ export default function RoadmapVisualizer({
   const standardHours = catalog.reduce((sum, item) => sum + item.estimated_hours, 0);
   const personalizedHours = pathway.reduce((sum, item) => sum + item.estimated_hours, 0);
   const skippedModules = Math.max(0, catalog.length - pathway.length);
+  const hasUnsupportedRole = gap_summary.unmatched_missing_skills.length > 0 && pathway.length === 0;
 
   const toggleStandardPath = (val: boolean) => {
     if (document.startViewTransition) {
@@ -191,7 +192,9 @@ export default function RoadmapVisualizer({
             <div>
               <h3 className="text-2xl font-bold text-white">Recommended Sequence</h3>
               <p className="text-sm text-slate-400 mt-1">
-                Compare generic onboarding against the AI-adaptive path and make the time savings visible.
+                {hasUnsupportedRole
+                  ? "This role contains unsupported requirements, so the system is surfacing the gap honestly instead of inventing a fake roadmap."
+                  : "Compare generic onboarding against the AI-adaptive path and make the time savings visible."}
               </p>
             </div>
             
@@ -337,9 +340,13 @@ export default function RoadmapVisualizer({
                 <CheckCircle2 className="w-6 h-6 text-green-500" />
               </div>
               <div className="flex flex-col justify-center">
-                <p className="text-xl font-bold text-green-400">Role Competency Path Established</p>
+                <p className={`text-xl font-bold ${hasUnsupportedRole ? "text-amber-400" : "text-green-400"}`}>
+                  {hasUnsupportedRole ? "Manual Calibration Required" : "Role Competency Path Established"}
+                </p>
                 <p className="text-slate-400">
-                  The candidate now has a grounded, sequenced onboarding path toward independent execution.
+                  {hasUnsupportedRole
+                    ? `The current catalog does not cover ${gap_summary.unmatched_missing_skills.join(", ")}, so the engine is correctly stopping at a mentor-led calibration step instead of hallucinating training content.`
+                    : "The candidate now has a grounded, sequenced onboarding path toward independent execution."}
                 </p>
               </div>
             </motion.div>

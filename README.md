@@ -277,7 +277,8 @@ src/
     upload/page.tsx
     page.tsx
     layout.tsx
-    icon.tsx
+    icon.png
+    icon.svg
     globals.css
   components/
     layout/

@@ -142,5 +142,68 @@
     "estimated_hours": 7,
     "prerequisites": ["data_analysis"],
     "role_tags": ["finance"]
+  },
+  {
+    "id": "systems_programming_foundations",
+    "title": "Systems Programming Foundations",
+    "skills_covered": ["Linux", "Distributed Systems", "Concurrency Control", "Performance Optimization"],
+    "difficulty": "intermediate",
+    "estimated_hours": 7,
+    "prerequisites": [],
+    "role_tags": ["engineering", "finance", "operations"]
+  },
+  {
+    "id": "modern_cpp_systems",
+    "title": "Modern C++ for Systems Engineering",
+    "skills_covered": ["C++", "Modern C++", "Memory Models", "Lock-Free Programming"],
+    "difficulty": "advanced",
+    "estimated_hours": 10,
+    "prerequisites": ["systems_programming_foundations"],
+    "role_tags": ["engineering", "finance"]
+  },
+  {
+    "id": "computer_architecture_latency",
+    "title": "Computer Architecture for Low-Latency Systems",
+    "skills_covered": ["Computer Architecture", "CPU Caches", "NUMA", "Branch Prediction", "SIMD/AVX"],
+    "difficulty": "advanced",
+    "estimated_hours": 9,
+    "prerequisites": ["modern_cpp_systems"],
+    "role_tags": ["engineering", "finance"]
+  },
+  {
+    "id": "linux_network_performance",
+    "title": "Linux Network and Performance Tuning",
+    "skills_covered": ["Linux Performance", "TCP/IP Networking", "Linux Network Stack", "Kernel Bypass Networking", "DPDK"],
+    "difficulty": "advanced",
+    "estimated_hours": 9,
+    "prerequisites": ["systems_programming_foundations"],
+    "role_tags": ["engineering", "finance"]
+  },
+  {
+    "id": "market_connectivity_oms",
+    "title": "Market Connectivity and OMS Integration",
+    "skills_covered": ["Order Management Systems", "Market Data Handlers", "FIX", "ITCH", "OUCH", "SBE"],
+    "difficulty": "advanced",
+    "estimated_hours": 10,
+    "prerequisites": ["linux_network_performance"],
+    "role_tags": ["engineering", "finance"]
+  },
+  {
+    "id": "hft_trading_infrastructure",
+    "title": "High-Frequency Trading Infrastructure",
+    "skills_covered": ["Low-Latency Systems", "HFT Infrastructure", "RDMA", "Co-Location Infrastructure", "Quantitative Finance"],
+    "difficulty": "advanced",
+    "estimated_hours": 12,
+    "prerequisites": ["modern_cpp_systems", "computer_architecture_latency", "market_connectivity_oms"],
+    "role_tags": ["engineering", "finance"]
+  },
+  {
+    "id": "fpga_trading_acceleration",
+    "title": "FPGA-Assisted Trading Acceleration",
+    "skills_covered": ["FPGA Trading Pipelines", "Hardware Acceleration"],
+    "difficulty": "advanced",
+    "estimated_hours": 8,
+    "prerequisites": ["computer_architecture_latency"],
+    "role_tags": ["engineering", "finance"]
   }
 ]

@@ -155,7 +155,8 @@ function pickTopGap(analysis: GapAnalysis) {
       .filter((item) => analysis.missing_skills.map(normalizeSkillName).includes(normalizeSkillName(item.skill)))
       .sort((a, b) => SKILL_LEVEL_WEIGHT[b.level] - SKILL_LEVEL_WEIGHT[a.level])[0]?.skill ??
     analysis.missing_skills[0] ??
-    'role-specific onboarding'
+    analysis.required_profile[0]?.skill ??
+    'manual calibration'
   );
 }
 
@@ -226,6 +227,19 @@ export function generateAdaptivePathway(analysis: GapAnalysis, domainType: strin
       : mentorRoleBase === 'intermediate'
         ? 'Senior Mentor'
         : 'Onboarding Coach';
+  const hasUnsupportedRole = unmatchedMissingSkills.length > 0 && pathway.length === 0;
+  const mentorFocus = hasUnsupportedRole ? `${topGap} calibration` : topGap;
+  const mentorReason = hasUnsupportedRole
+    ? `Assigned because the role depends on unsupported or uncatalogued requirements (${unmatchedMissingSkills.join(', ')}), so a mentor must calibrate the onboarding plan before recommending modules.`
+    : `Assigned because ${topGap} is the highest-priority remaining competency gap and needs guided ramp-up before independent delivery.`;
+  const sandboxTitle = hasUnsupportedRole
+    ? `Manual calibration project for ${mentorFocus}`
+    : `Guided onboarding project for ${sandboxFocus}`;
+  const sandboxDescription = hasUnsupportedRole
+    ? `No grounded modules were recommended because the current catalog does not yet cover ${unmatchedMissingSkills.join(', ')}. The next step is a mentor-led calibration task to define or import the right training content.`
+    : unmatchedMissingSkills.length > 0
+      ? `The initial sandbox focuses on catalog-covered gaps in ${sandboxFocus}, while unmatched requirements (${unmatchedMissingSkills.join(', ')}) are flagged for mentor-led calibration rather than hallucinated modules.`
+      : `The sandbox converts the identified gaps in ${sandboxFocus} into a practical assignment so the learner demonstrates competency, not just course completion.`;
 
   return {
     pathway,
@@ -239,15 +253,12 @@ export function generateAdaptivePathway(analysis: GapAnalysis, domainType: strin
     roi_metrics: calculateRoi(analysis, activeCatalog),
     mentorship_match: {
       name: mentorRoleBase === 'advanced' ? 'Avery Rao' : mentorRoleBase === 'intermediate' ? 'Jordan Kim' : 'Samira Patel',
-      role: `${mentorTitle} for ${topGap}`,
-      reason: `Assigned because ${topGap} is the highest-priority remaining competency gap and needs guided ramp-up before independent delivery.`,
+      role: `${mentorTitle} for ${mentorFocus}`,
+      reason: mentorReason,
     },
     sandbox_project: {
-      title: `Guided onboarding project for ${sandboxFocus}`,
-      description:
-        unmatchedMissingSkills.length > 0
-          ? `The initial sandbox focuses on catalog-covered gaps in ${sandboxFocus}, while unmatched requirements (${unmatchedMissingSkills.join(', ')}) are flagged for mentor-led calibration rather than hallucinated modules.`
-          : `The sandbox converts the identified gaps in ${sandboxFocus} into a practical assignment so the learner demonstrates competency, not just course completion.`,
+      title: sandboxTitle,
+      description: sandboxDescription,
     },
   };
 }

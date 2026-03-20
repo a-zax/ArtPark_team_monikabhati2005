@@ -75,6 +75,53 @@ function dedupeSkills(skills: string[]) {
   return result;
 }
 
+function cleanFallbackSkillName(input: string) {
+  return input
+    .replace(/\s+/g, ' ')
+    .replace(/[•|]/g, ' ')
+    .replace(/\s*\/\s*/g, '/')
+    .trim();
+}
+
+function isGenericSkillLabel(skill: string) {
+  const normalized = normalizeSkillName(skill);
+  return [
+    'software engineering',
+    'software design',
+    'development',
+    'engineering',
+    'programming',
+    'technology',
+    'systems',
+    'system design',
+    'tools',
+    'apis',
+    'backend',
+    'frontend',
+    'problem solving',
+    'communication',
+    'leadership',
+    'documentation',
+    'teamwork',
+    'scrum',
+  ].includes(normalized);
+}
+
+function normalizeOrFallbackSkill(skill: string, domainType: string) {
+  const canonical = canonicalizeSkillName(skill, domainType);
+  if (canonical) return canonical;
+
+  const cleaned = cleanFallbackSkillName(skill);
+  if (!cleaned) return null;
+
+  const alphaNumericCount = cleaned.replace(/[^a-zA-Z0-9+#/.-]/g, '').length;
+  if (alphaNumericCount < 3) return null;
+  if (cleaned.length > 50) return null;
+  if (isGenericSkillLabel(cleaned)) return null;
+
+  return cleaned;
+}
+
 function safeLevel(input: unknown): SkillLevel {
   if (input === 'advanced' || input === 'intermediate' || input === 'beginner') {
     return input;
@@ -110,7 +157,7 @@ function normalizeProfile(profile: unknown, domainType: string): SkillProfile[] 
     profile
       .map((item) => {
         if (!(typeof item === 'object' && item && 'skill' in item)) return '';
-        return canonicalizeSkillName(String(item.skill).trim(), domainType) ?? '';
+        return normalizeOrFallbackSkill(String(item.skill).trim(), domainType) ?? '';
       })
       .filter(Boolean),
   ).map((skill) => {
@@ -119,7 +166,7 @@ function normalizeProfile(profile: unknown, domainType: string): SkillProfile[] 
         typeof item === 'object' &&
         item &&
         'skill' in item &&
-        canonicalizeSkillName(String(item.skill), domainType) === skill,
+        normalizeOrFallbackSkill(String(item.skill), domainType) === skill,
     ) as Record<string, unknown> | undefined;
 
     return {
@@ -178,26 +225,26 @@ function normalizeAnalysis(payload: unknown, domainType: string): GapAnalysis {
     ...(Array.isArray(data.candidate_skills)
       ? data.candidate_skills
           .filter((item): item is string => typeof item === 'string')
-          .map((item) => canonicalizeSkillName(item, domainType) ?? '')
+          .map((item) => normalizeOrFallbackSkill(item, domainType) ?? '')
           .filter(Boolean)
       : []),
-  ]).slice(0, 16);
+  ]).slice(0, 24);
 
   const requiredSkills = dedupeSkills([
     ...requiredProfile.map((item) => item.skill),
     ...(Array.isArray(data.required_skills)
       ? data.required_skills
           .filter((item): item is string => typeof item === 'string')
-          .map((item) => canonicalizeSkillName(item, domainType) ?? '')
+          .map((item) => normalizeOrFallbackSkill(item, domainType) ?? '')
           .filter(Boolean)
       : []),
-  ]).slice(0, 16);
+  ]).slice(0, 24);
 
   const modelMissingSkills = dedupeSkills(
     Array.isArray(data.missing_skills)
       ? data.missing_skills
           .filter((item): item is string => typeof item === 'string')
-          .map((item) => canonicalizeSkillName(item, domainType) ?? '')
+          .map((item) => normalizeOrFallbackSkill(item, domainType) ?? '')
           .filter(Boolean)
       : [],
   );
@@ -271,7 +318,7 @@ export async function POST(request: Request) {
         {
           role: 'system',
           content:
-            `You are an HR onboarding analyst. Extract a structured candidate skill profile and a structured required skill profile from the resume and job description. Output strict JSON only. Use only skills from this approved vocabulary: ${allowedSkillsPrompt}. Do not invent new skills, do not include vague or loosely related terms, and do not inflate generic cross-functional skills unless they are explicitly central to the role. Prefer role-defining technical or operational skills over broad terms. For each skill, include level as beginner/intermediate/advanced, optional years as a number when inferable, a short evidence string, confidence as a float between 0.0 and 1.0, and last_used_year as a 4-digit integer if inferable from resume dates. Confidence must be lower when a skill is only mentioned once or weakly implied, and higher when repeated with concrete evidence such as projects, tools, or years of use. Include candidate_skills, required_skills, and missing_skills arrays too.`,
+            `You are an HR onboarding analyst. Extract a structured candidate skill profile and a structured required skill profile from the resume and job description. Output strict JSON only. Prefer skills from this approved vocabulary: ${allowedSkillsPrompt}. If the resume or JD contains an explicit, role-defining skill that is not in the approved vocabulary, keep the exact term from the text instead of dropping it. Do not invent new skills, do not include vague or loosely related terms, and do not inflate generic cross-functional skills unless they are explicitly central to the role. Prefer precise technical or operational skills over broad labels. For each skill, include level as beginner/intermediate/advanced, optional years as a number when inferable, a short evidence string, confidence as a float between 0.0 and 1.0, and last_used_year as a 4-digit integer if inferable from resume dates. Confidence must be lower when a skill is only mentioned once or weakly implied, and higher when repeated with concrete evidence such as projects, tools, or years of use. Include candidate_skills, required_skills, and missing_skills arrays too.`,
         },
         {
           role: 'user',
@@ -290,8 +337,10 @@ export async function POST(request: Request) {
 }
 
 Only include skills grounded in the provided texts.
-Only choose skills from this approved vocabulary:
+Prefer this approved vocabulary when possible:
 ${allowedSkillsPrompt}
+
+If the role clearly depends on explicit skills outside the approved vocabulary, preserve the exact skill phrase from the JD or resume rather than dropping it.
 
 RESUME:
 ${cleanResume}

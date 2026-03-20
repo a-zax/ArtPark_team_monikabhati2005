@@ -1,70 +1,173 @@
-# SyncPath AI - Teammate Setup Guide
+# CogniSync AI — Teammate Setup Guide
 
-Welcome! If you are reading this, you are about to run our Hackathon project, **SyncPath AI**, on your own computer. 
+Welcome! If you're reading this, you're about to run our Hackathon project, **CogniSync AI**, on your own computer.
 
-Don't worry if you don't have a technical background—this guide is written step-by-step so you can get the application running in under 5 minutes.
-
----
-
-## Step 1: Install Node.js (The Engine)
-Our project runs on a technology called Node.js. Your computer needs this installed first.
-
-1. Go to the official Node.js website: [https://nodejs.org](https://nodejs.org/)
-2. Click the big green button that says **"LTS" (Recommended for Most Users)**. This will download an installer file.
-3. Open the downloaded installer and click **Next** through all the default settings until it finishes.
-4. **Important**: After it installs, you must **restart your computer** (or fully close all open terminal windows) so your computer recognizes the new software.
+This guide is written step-by-step so you can get the application running in **under 10 minutes** — no prior coding experience required.
 
 ---
 
-## Step 2: Get the Project Files
-If you haven't already, you need the actual project codebase on your computer.
+## What You'll Need
 
-1. Download the project folder (either via Google Drive, a ZIP file sent from your teammate, or from GitHub).
-2. If it's a ZIP file, **extract (unzip)** it to an easy-to-find location, like your Desktop.
-3. Open the extracted folder so you can see all the project files (like `package.json`, `README.md`, etc.).
+Before we start, make sure you have the following ready:
+
+1. **The project files** (ZIP or cloned from GitHub)
+2. **A Groq API Key** — free, no credit card required (instructions below)
+3. **An internet connection** for the first install only
 
 ---
 
-## Step 3: Open the Terminal
-We need to type exactly two commands to start the project. 
+## Step 1: Get Your Free AI API Key
+
+CogniSync AI uses **Groq Cloud** (free tier) to run the Llama 3.3 AI model. You need an API key for the AI features to work.
+
+1. Go to: **[https://console.groq.com](https://console.groq.com)**
+2. Click **"Sign Up"** (or **"Log In"** if you already have an account) — you can sign in with Google
+3. Once logged in, click **"API Keys"** in the left sidebar
+4. Click **"Create API Key"**, give it any name (e.g., `hackathon`), and click **Create**
+5. **Copy the key immediately** — it starts with `gsk_...` and looks like a long random string
+6. Store it somewhere safe (like a notepad) — you'll need it in Step 4
+
+> **Why is this needed?** The AI brain of our app (Llama 3.3 70B by Meta) runs on Groq's servers. Without the key, the app can still load and display the UI, but the "Formulate Pathway" button won't be able to generate results.
+
+---
+
+## Step 2: Install Node.js
+
+Our project runs on **Node.js**. Your computer needs this installed first.
+
+1. Go to: **[https://nodejs.org](https://nodejs.org/)**
+2. Click the big green **"LTS"** button (Recommended for Most Users)
+3. Download and run the installer — click **Next** through all default settings
+4. After it finishes, **restart your computer** (or fully close all terminal windows) so your computer recognizes the new software
+
+**To verify it worked:** Open a new terminal and type `node -v` — you should see a version number like `v20.x.x`
+
+---
+
+## Step 3: Get the Project Files
+
+If you haven't already, get the project onto your computer:
+
+- **Option A (GitHub):** `git clone <repository-url>`
+- **Option B (ZIP):** Download the ZIP file, right-click → **Extract All**, place in an easy location like your Desktop
+
+Open the extracted folder — you should see files like `package.json`, `README.md`, `.env.example`, etc.
+
+---
+
+## Step 4: Configure the Environment File
+
+This is where you tell the app your secret API key.
+
+1. Find the file called **`.env.example`** in the project root folder
+2. **Duplicate it** and rename the copy to exactly **`.env.local`** (note the dot at the start)
+   - On Windows: Right-click → Copy → Paste → Rename to `.env.local`
+3. Open **`.env.local`** with any text editor (Notepad, VS Code, etc.)
+4. You'll see a line like:
+   ```
+   GROQ_API_KEY=your_groq_api_key_here
+   ```
+5. Replace `your_groq_api_key_here` with the key you copied in Step 1:
+   ```
+   GROQ_API_KEY=gsk_xxxxxxxxxxxxxxxxxxxxxxxxxx
+   ```
+6. Save the file
+
+> **Security Note:** The `.env.local` file is automatically excluded from Git. Never share this file or commit it to GitHub.
+
+---
+
+## Step 5: Open the Terminal Inside the Project Folder
 
 ### On Windows:
-1. Open the project folder in File Explorer.
-2. Click on the address bar at the very top of the window (where it says `C:\Users\...\Desktop` or similar).
-3. Delete everything in the bar, type `cmd`, and press **Enter**.
-4. A black command prompt window will pop up. It is now open directly inside your project folder!
+1. Open the project folder in File Explorer
+2. Click on the address bar at the top (where it shows the folder path)
+3. Delete the text, type **`cmd`**, and press **Enter**
+4. A black Command Prompt window will open — it's now inside the project folder!
 
-### On Mac:
-1. Open the project folder in Finder.
-2. Right-click the folder and select **New Terminal at Folder** (or open the "Terminal" app, type `cd `, and drag the folder into the Terminal).
-
----
-
-## Step 4: Install & Run!
-In that black command window you just opened, do the following:
-
-1. **Install the project dependencies**: 
-   Type the exact command below and press **Enter**:
-   ```cmd
-   npm install
-   ```
-   *(Wait a minute or two while it downloads the required code libraries. You will see a loading bar.)*
-
-2. **Start the application**:
-   Once the installation is completely done, type this command and press **Enter**:
-   ```cmd
-   npm run dev
-   ```
-   *(Wait a few seconds. You will see a message saying "Ready" and something about "http://localhost:3000".)*
+### On Mac / Linux:
+1. Open the Terminal application
+2. Type `cd ` (with a space), then drag and drop the project folder into the terminal window
+3. Press **Enter**
 
 ---
 
-## Step 5: View the Application
-1. Open your web browser (Chrome, Edge, Safari, etc.).
-2. In the URL address bar at the top, type exactly:
-   **`http://localhost:3000`**
-3. Press **Enter**.
+## Step 6: Install & Run
 
-**You are done!** The SyncPath AI Onboarding Engine should now be running beautifully on your screen. You can upload resumes, view the interactive reasoning traces, and test clicking around exactly like a real user!
+In the terminal window, run the following two commands in order:
 
-> **Note:** To shut down the application when you are finished testing, just close the black command window, or click inside it and press **Ctrl + C**.
+### Install dependencies (one-time only):
+```bash
+npm install
+```
+Wait 1-3 minutes while it downloads the required libraries. You'll see a loading progress bar.
+
+### Start the application:
+```bash
+npm run dev
+```
+Wait about 5-10 seconds. You'll see output like:
+```
+✓ Ready in 2s
+- Local: http://localhost:3000
+```
+
+---
+
+## Step 7: Open the Application
+
+1. Open your web browser (Chrome, Edge, or Firefox recommended)
+2. In the address bar, type: **`http://localhost:3000`**
+3. Press **Enter**
+
+🎉 **You're done!** CogniSync AI should now be running with the full cinematic experience.
+
+---
+
+## How to Use the App
+
+1. **Homepage** — Explore the Features, How it Works, and the live Demo animation
+2. **Start Onboarding / Upload** — Click any CTA button to go to the upload page
+3. **Upload a Resume** — Drag and drop a `.pdf`, `.docx`, or `.txt` file into the left zone
+4. **Paste a Job Description** — Copy a job posting from LinkedIn/company site and paste into the right box
+5. **Formulate Pathway** — Click the big white button and wait ~10-15 seconds for the AI to process
+6. **Explore Your Roadmap** — The page will auto-scroll to your personalized pathway
+   - Click **"Test Knowledge"** on any module to take an AI-generated quiz
+   - Check your **Competency Radar Chart** for a visual gap snapshot
+   - Download your **Calendar Schedule** as a `.ics` file
+
+---
+
+## Troubleshooting
+
+| Problem | Solution |
+|---|---|
+| `GROQ_API_KEY is not set` error | Make sure `.env.local` exists and has the correct key (not `.env.example`) |
+| `npm install` fails | Make sure Node.js 18+ is installed: run `node -v` to check |
+| Page shows but AI doesn't work | Double-check your Groq API key is valid and hasn't expired |
+| Port 3000 already in use | Stop any other running dev servers, or run `npm run dev -- -p 3001` |
+| Build error about `icon.svg` | This is a known harmless warning — the app will still run fine |
+
+---
+
+## Shutting Down
+
+When you're done testing, return to your terminal window and press **`Ctrl + C`** to stop the server.
+
+---
+
+## Docker Alternative (Advanced)
+
+If you have Docker Desktop installed, you can run the app without installing Node.js:
+
+```bash
+docker build -t cognisync-ai .
+docker run -p 3000:3000 -e GROQ_API_KEY=your_key_here cognisync-ai
+```
+
+Then visit `http://localhost:3000`.
+
+---
+
+*Built with precision and ambition for the ArtPark CodeForge Hackathon 2026.*
+*© 2026 CogniSync AI Team*

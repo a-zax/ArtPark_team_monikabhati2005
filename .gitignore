@@ -8,6 +8,11 @@
 
 # testing
 /coverage
+/.datasets/
+/.codex-engine-test/runtime/
+/.codex-engine-test/benchmark-cases.json
+/.codex-engine-test/benchmark-report.json
+/.codex-engine-test/benchmark-report.md
 
 # next.js
 /.next/

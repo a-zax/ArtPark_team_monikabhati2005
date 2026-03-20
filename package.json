@@ -7,6 +7,7 @@
     "dev": "next dev",
     "dev:fresh": "npm run clean && next dev",
     "dev:open": "node scripts/dev-open.js",
+    "benchmark:datasets": "node scripts/run-dataset-benchmark.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

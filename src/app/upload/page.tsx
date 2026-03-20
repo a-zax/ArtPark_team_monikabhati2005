@@ -5,7 +5,9 @@ import FileUploadZone from "@/components/ui/FileUploadZone";
 import RoadmapVisualizer from "@/components/ui/RoadmapVisualizer";
 import { useState } from "react";
 import { ArrowRight, FileCheck2, Loader2 } from "lucide-react";
-import AICrystal from "@/components/ui/AICrystal";
+import dynamic from 'next/dynamic';
+
+const AICrystal = dynamic(() => import('@/components/ui/AICrystal'), { ssr: false });
 
 export default function UploadPage() {
   const [resume, setResume] = useState<File | null>(null);

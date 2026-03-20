@@ -2,7 +2,9 @@ import type { Metadata } from 'next';
 import { Outfit } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/Header';
-import HeroConstellation from '@/components/ui/HeroConstellation';
+import dynamic from 'next/dynamic';
+
+const HeroConstellation = dynamic(() => import('@/components/ui/HeroConstellation'), { ssr: false });
 
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 

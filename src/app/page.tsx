@@ -4,7 +4,9 @@ import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import { ArrowRight, FileText, Blocks, Zap, Crosshair, BrainCircuit, Activity } from 'lucide-react';
 import Link from 'next/link';
 import MagneticButton from '@/components/ui/MagneticButton';
-import ParticleGlobe from '@/components/ui/ParticleGlobe';
+import dynamic from 'next/dynamic';
+
+const ParticleGlobe = dynamic(() => import('@/components/ui/ParticleGlobe'), { ssr: false });
 
 export default function Home() {
   return (

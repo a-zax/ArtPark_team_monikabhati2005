@@ -93,9 +93,10 @@ export default function UploadPage() {
             Operational / Labor
           </button>
           <div
-            className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary/20 border border-primary/30 rounded-full transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+            className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary/20 border border-primary/30 rounded-full transition-all duration-300 ${
               domainType === "knowledge" ? "left-1.5" : "left-[calc(50%+4.5px)] bg-accent/20 border-accent/30"
             }`}
+            style={{ transitionTimingFunction: "cubic-bezier(0.19, 1, 0.22, 1)" }}
           />
         </div>
       </motion.div>

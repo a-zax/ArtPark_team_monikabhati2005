@@ -213,9 +213,10 @@ export default function RoadmapVisualizer({
                 Personalized Path
               </button>
               <div
-                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary/20 border border-primary/30 rounded-full transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary/20 border border-primary/30 rounded-full transition-all duration-300 ${
                   showStandardPath ? "left-1 bg-white/10 border-white/20" : "left-[calc(50%+4px)] bg-primary/20 border-primary/30"
                 }`}
+                style={{ transitionTimingFunction: "cubic-bezier(0.19, 1, 0.22, 1)" }}
               />
             </div>
           </div>

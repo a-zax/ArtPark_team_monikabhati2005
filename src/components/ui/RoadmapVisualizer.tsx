@@ -224,7 +224,7 @@ export default function RoadmapVisualizer({
                       <div className="absolute top-0 left-0 w-1 h-full bg-primary/50" />
                       <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm text-slate-300 leading-relaxed font-mono">
+                        <p className="text-sm text-slate-300 leading-relaxed">
                           <span className="text-primary font-bold block mb-1 font-sans">Reasoning Trace</span>
                           <Typewriter text={step.reasoning} delay={0.5 + (index * 0.1) + 0.2} />
                         </p>

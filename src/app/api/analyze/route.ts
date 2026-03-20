@@ -87,7 +87,7 @@ export async function POST(request: Request) {
           content: `RESUME:\n${resumeText}\n\nJOB DESCRIPTION:\n${cleanJd}`
         }
       ],
-      model: 'llama-3.1-70b-versatile',
+      model: 'llama-3.3-70b-versatile',
       response_format: { type: 'json_object' }
     });
 

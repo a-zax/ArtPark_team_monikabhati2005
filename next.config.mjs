@@ -1,6 +1,8 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
+  experimental: {
+    serverComponentsExternalPackages: ['pdf-parse'],
+  },
   transpilePackages: ['three', '@react-three/fiber', '@react-three/drei'],
   async headers() {
     return [
@@ -17,6 +19,10 @@ const nextConfig = {
         ],
       },
     ];
+  },
+  webpack: (config) => {
+    config.resolve.alias.canvas = false;
+    return config;
   },
 };
 

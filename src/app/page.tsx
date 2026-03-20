@@ -15,19 +15,6 @@ export default function Home() {
       
       {/* 1. HERO SECTION */}
       <section className="w-full flex flex-col items-center justify-center text-center mt-12 mb-32 relative">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.6, type: "spring", stiffness: 150 }}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass-panel mb-10 border-primary/30"
-        >
-          <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
-          </div>
-          <span className="text-sm font-semibold text-slate-300">ArtPark CodeForge Hackathon 2026</span>
-        </motion.div>
-
         <motion.h1 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}

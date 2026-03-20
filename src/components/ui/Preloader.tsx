@@ -15,12 +15,8 @@ export default function Preloader() {
   const [progress, setProgress] = useState(0);
   const [stage, setStage] = useState(0);
   const [done, setDone] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
-    
-    // Safety exit: force clear after 10 seconds if something stalls
     const safety = setTimeout(() => {
       setDone(true);
     }, 10000);
@@ -34,17 +30,9 @@ export default function Preloader() {
           return 100;
         }
 
-        // Snap logic
         const next = prev + Math.max(1, Math.floor((101 - prev) / 6));
         const limitedNext = Math.min(100, next);
-        
         setStage(Math.min(STAGES.length - 1, Math.floor(limitedNext / 21)));
-        
-        // Debug for the user in console
-        if (limitedNext % 10 === 0) {
-          console.log(`[CogniSync] Initialization progress: ${limitedNext}%`);
-        }
-        
         return limitedNext;
       });
     }, 80);
@@ -54,9 +42,6 @@ export default function Preloader() {
       clearTimeout(safety);
     };
   }, []);
-
-  if (!mounted) return null;
-
 
   return (
     <AnimatePresence mode="wait">

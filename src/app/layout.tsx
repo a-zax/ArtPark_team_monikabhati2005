@@ -10,7 +10,7 @@ const HeroConstellation = dynamic(() => import('@/components/ui/HeroConstellatio
 const outfit = Outfit({ subsets: ['latin'], variable: '--font-outfit' });
 
 export const metadata: Metadata = {
-  title: 'SyncPath AI | Adaptive Onboarding Engine',
+  title: 'CogniSync AI | Adaptive Onboarding Engine',
   description: 'AI-driven, adaptive learning engine for hyper-personalized onboarding pathways.',
 };
 

@@ -6,7 +6,7 @@ interface CalendarEvent {
 }
 
 export function generateICS(events: CalendarEvent[]): string {
-   let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//SyncPath AI//Corporate Onboarding Module//EN\nCALSCALE:GREGORIAN\n";
+   let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CogniSync AI//Corporate Onboarding Module//EN\nCALSCALE:GREGORIAN\n";
 
    events.forEach((event) => {
       const end = new Date(event.start.getTime() + event.durationHours * 60 * 60 * 1000);

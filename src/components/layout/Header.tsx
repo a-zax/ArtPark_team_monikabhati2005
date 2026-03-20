@@ -23,7 +23,7 @@ export default function Header() {
             <BrainCircuit className="w-6 h-6 relative z-10" />
           </div>
           <span className="text-2xl font-bold tracking-tight text-white group-hover:text-primary transition-colors">
-            Sync<span className="text-primary">Path</span> AI
+            Cogni<span className="text-primary">Sync</span> AI
           </span>
         </Link>
         <nav className="hidden md:flex items-center gap-8">

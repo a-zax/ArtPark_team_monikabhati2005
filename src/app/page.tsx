@@ -82,7 +82,7 @@ export default function Home() {
           viewport={{ once: true, margin: "-100px" }}
           className="text-center mb-16"
         >
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Why SyncPath <span className="text-primary">AI</span>?</h2>
+          <h2 className="text-3xl md:text-5xl font-bold mb-4">Why CogniSync <span className="text-primary">AI</span>?</h2>
           <p className="text-slate-400 text-lg max-w-2xl mx-auto">Standard training wastes 40% of an experienced hire&apos;s time. Our engine surgically patches missing knowledge without any redundancy.</p>
         </motion.div>
 

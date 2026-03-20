@@ -85,7 +85,7 @@ export default function RoadmapVisualizer({
                d.setHours(9, 0, 0, 0);
                return { title: s.title, description: s.reasoning, start: d, durationHours: s.estimated_hours };
             });
-            downloadICS(events, "SyncPath_Onboarding.ics");
+            downloadICS(events, "CogniSync_Onboarding.ics");
           }}
           className="mt-6 inline-flex items-center gap-2 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/20 hover:border-primary/40 transition-colors px-6 py-2.5 rounded-full font-bold text-sm shadow-[0_0_20px_rgba(59,130,246,0.15)]"
         >

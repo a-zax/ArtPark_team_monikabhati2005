@@ -59,7 +59,7 @@ export default function Preloader() {
               className="text-center"
             >
               <p className="text-xs tracking-[0.5em] text-primary/70 uppercase font-mono mb-2">ArtPark CodeForge 2026</p>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">SyncPath <span className="text-primary">AI</span></h1>
+              <h1 className="text-3xl font-extrabold text-white tracking-tight">CogniSync <span className="text-primary">AI</span></h1>
             </motion.div>
 
             {/* Giant counter */}

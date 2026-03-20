@@ -41,7 +41,7 @@ export default function DemoAnimation() {
       >
         <p className="text-xs tracking-[0.4em] text-primary/70 uppercase font-mono mb-2">Live Product Preview</p>
         <h2 className="text-3xl md:text-5xl font-bold mb-3">
-          See SyncPath <span className="text-gradient">In Action</span>
+          See CogniSync <span className="text-gradient">In Action</span>
         </h2>
         <p className="text-slate-400 max-w-lg mx-auto text-base">
           Watch the full adaptive onboarding pipeline run automatically below.
@@ -83,7 +83,7 @@ export default function DemoAnimation() {
           </div>
           <div className="flex-1 mx-3 flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-1 h-7">
             <div className="w-3 h-3 rounded-full border border-slate-600 flex-shrink-0" />
-            <span className="text-xs text-slate-500 font-mono truncate">localhost:3000 — SyncPath AI</span>
+            <span className="text-xs text-slate-500 font-mono truncate">localhost:3000 — CogniSync AI</span>
           </div>
           <div className="hidden sm:flex items-center gap-1.5">
             {STEPS.map((s) => (

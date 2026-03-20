@@ -33,11 +33,11 @@ export default function SkillRadar({ candidateSkills, requiredSkills, missingSki
       </div>
       <div className="flex-1 w-full mt-4">
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart cx="50%" cy="50%" outerRadius="65%" data={data}>
+          <RadarChart cx="50%" cy="50%" outerRadius="50%" data={data}>
             <PolarGrid stroke="rgba(255,255,255,0.1)" />
             <PolarAngleAxis 
               dataKey="subject" 
-              tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 11, fontWeight: 600 }} 
+              tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 600 }} 
             />
             <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
             

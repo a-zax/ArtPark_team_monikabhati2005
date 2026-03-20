@@ -40,6 +40,7 @@ export default function RoadmapVisualizer({
   sandbox_project: any
 }) {
   const [quizSkill, setQuizSkill] = useState<string | null>(null);
+  const [quizScores, setQuizScores] = useState<Record<string, number>>({});
 
   useEffect(() => {
     // Fire confetti when the roadmap fully generates
@@ -205,13 +206,24 @@ export default function RoadmapVisualizer({
                     <div className="flex flex-col sm:flex-row justify-between items-start mb-4 gap-2">
                       <h4 className="text-xl font-bold text-white group-hover:text-primary transition-colors">{step.title}</h4>
                       <div className="flex items-center gap-2 flex-shrink-0">
-                        <button 
-                          onClick={() => setQuizSkill(step.title)}
-                          className="flex items-center gap-1.5 text-sm font-bold text-accent bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20 hover:bg-accent/20 transition-colors shadow-[0_0_15px_rgba(139,92,246,0.2)]"
-                        >
-                          <Layers className="w-4 h-4" />
-                          Test Knowledge
-                        </button>
+                        {quizScores[step.title] !== undefined ? (
+                          <span className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border shadow-sm ${
+                            quizScores[step.title] === 3 ? "bg-green-500/10 text-green-400 border-green-500/30 shadow-[0_0_15px_rgba(34,197,94,0.15)]" :
+                            quizScores[step.title] === 2 ? "bg-amber-500/10 text-amber-400 border-amber-500/30 shadow-[0_0_15px_rgba(245,158,11,0.15)]" :
+                            "bg-red-500/10 text-red-400 border-red-500/30 shadow-[0_0_15px_rgba(239,68,68,0.15)]"
+                          }`}>
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                            Scored: {quizScores[step.title]}/3
+                          </span>
+                        ) : (
+                          <button 
+                            onClick={() => setQuizSkill(step.title)}
+                            className="flex items-center gap-1.5 text-sm font-bold text-accent bg-accent/10 px-3 py-1.5 rounded-full border border-accent/20 hover:bg-accent/20 transition-colors shadow-[0_0_15px_rgba(139,92,246,0.2)]"
+                          >
+                            <Layers className="w-4 h-4" />
+                            Test Knowledge
+                          </button>
+                        )}
                         <span className="flex items-center gap-1.5 text-sm font-semibold text-primary bg-primary/10 px-3 py-1.5 rounded-full border border-primary/20">
                           <Clock className="w-4 h-4" />
                           {step.estimated_hours}h
@@ -257,6 +269,11 @@ export default function RoadmapVisualizer({
         skill={quizSkill || ''} 
         isOpen={!!quizSkill} 
         onClose={() => setQuizSkill(null)} 
+        onComplete={(score) => {
+          if (quizSkill) {
+            setQuizScores(prev => ({ ...prev, [quizSkill]: score }));
+          }
+        }}
       />
     </motion.div>
   );

@@ -14,9 +14,10 @@ interface QuizModalProps {
   skill: string;
   isOpen: boolean;
   onClose: () => void;
+  onComplete?: (score: number) => void;
 }
 
-export default function KnowledgeQuizModal({ skill, isOpen, onClose }: QuizModalProps) {
+export default function KnowledgeQuizModal({ skill, isOpen, onClose, onComplete }: QuizModalProps) {
   const [loading, setLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQ, setCurrentQ] = useState(0);
@@ -62,7 +63,10 @@ export default function KnowledgeQuizModal({ skill, isOpen, onClose }: QuizModal
     }, 1000);
   };
 
-  const handleClose = () => {
+  const handleClose = (finalizedScore?: number) => {
+     if (typeof finalizedScore === 'number' && onComplete) {
+       onComplete(finalizedScore);
+     }
      setQuestions([]);
      setCurrentQ(0);
      setScore(0);
@@ -80,7 +84,7 @@ export default function KnowledgeQuizModal({ skill, isOpen, onClose }: QuizModal
             animate={{ opacity: 1 }} 
             exit={{ opacity: 0 }}
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={handleClose}
+            onClick={() => handleClose()}
           />
           
           <motion.div 
@@ -89,7 +93,7 @@ export default function KnowledgeQuizModal({ skill, isOpen, onClose }: QuizModal
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="relative w-full max-w-lg bg-slate-900 border border-white/10 rounded-3xl p-6 md:p-8 shadow-2xl overflow-hidden"
           >
-            <button onClick={handleClose} className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
+            <button onClick={() => handleClose()} className="absolute top-6 right-6 text-slate-400 hover:text-white transition-colors">
               <X className="w-6 h-6" />
             </button>
 
@@ -107,8 +111,17 @@ export default function KnowledgeQuizModal({ skill, isOpen, onClose }: QuizModal
                    <AlertCircle className="w-16 h-16 text-amber-400 mb-4" />
                 )}
                 <h3 className="text-2xl font-extrabold text-white mb-2">Assessment Complete</h3>
-                <p className="text-slate-300 mb-6">You scored <span className="font-bold text-primary">{score}</span> out of {questions.length} on {skill}.</p>
-                <button onClick={handleClose} className="bg-primary text-white font-bold px-8 py-3 rounded-full hover:bg-blue-600 transition-colors">
+                <p className="text-slate-300 mb-4">You scored <span className="font-bold text-primary">{score}</span> out of {questions.length} on {skill}.</p>
+                
+                <div className="bg-slate-800/50 border border-white/5 rounded-xl p-4 mb-8">
+                  <p className="text-sm text-slate-300">
+                    {score === 3 ? "Outstanding! You have functionally mastered this competency. The AI engine recommends proceeding straight to the sandboxed applications." : 
+                     score === 2 ? "Strong proficiency demonstrated. Reviewing the minor syntax gaps will ensure full alignment with the target Job Description." : 
+                     "Significant skill delta identified. We highly recommend dedicating the full required time to complete this module before Day 1."}
+                  </p>
+                </div>
+
+                <button onClick={() => handleClose(score)} className="bg-primary text-white font-bold px-8 py-3 rounded-full hover:bg-blue-600 transition-colors">
                   Continue Pathway
                 </button>
               </div>

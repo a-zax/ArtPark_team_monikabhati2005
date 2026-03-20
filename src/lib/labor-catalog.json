@@ -1,0 +1,92 @@
+[
+  {
+    "id": "warehouse_safety_foundations",
+    "title": "Warehouse Safety Foundations & OSHA",
+    "skills_covered": ["Safety Compliance", "OSHA Standard", "Hazard Recognition"],
+    "difficulty": "beginner",
+    "estimated_hours": 4,
+    "prerequisites": [],
+    "role_tags": ["operations", "labor"]
+  },
+  {
+    "id": "forklift_certification",
+    "title": "Forklift and Heavy Machinery Certification",
+    "skills_covered": ["Forklift Operation", "Heavy Machinery", "Equipment Safety"],
+    "difficulty": "intermediate",
+    "estimated_hours": 8,
+    "prerequisites": ["warehouse_safety_foundations"],
+    "role_tags": ["labor"]
+  },
+  {
+    "id": "quality_assurance_checklists",
+    "title": "Manufacturing Quality Checklists",
+    "skills_covered": ["Quality Control", "Inspection", "Defect Tracking"],
+    "difficulty": "beginner",
+    "estimated_hours": 5,
+    "prerequisites": [],
+    "role_tags": ["operations", "labor", "quality"]
+  },
+  {
+    "id": "inventory_management_systems",
+    "title": "Inventory Management and Scanning",
+    "skills_covered": ["Inventory Management", "RFID Scanning", "Logistics Software"],
+    "difficulty": "beginner",
+    "estimated_hours": 6,
+    "prerequisites": [],
+    "role_tags": ["operations", "logistics"]
+  },
+  {
+    "id": "sop_compliance",
+    "title": "Standard Operating Procedures (SOPs)",
+    "skills_covered": ["SOP Compliance", "Documentation", "Process Adherence"],
+    "difficulty": "beginner",
+    "estimated_hours": 3,
+    "prerequisites": [],
+    "role_tags": ["operations"]
+  },
+  {
+    "id": "advanced_machinery_maintenance",
+    "title": "Advanced Machinery Maintenance & Troubleshooting",
+    "skills_covered": ["Maintenance", "Troubleshooting", "Equipment Repair"],
+    "difficulty": "advanced",
+    "estimated_hours": 10,
+    "prerequisites": ["forklift_certification"],
+    "role_tags": ["labor", "maintenance"]
+  },
+  {
+    "id": "team_coordination_floor",
+    "title": "Floor Team Coordination",
+    "skills_covered": ["Team Leadership", "Shift Handoff", "Communication"],
+    "difficulty": "intermediate",
+    "estimated_hours": 6,
+    "prerequisites": ["sop_compliance"],
+    "role_tags": ["operations", "labor"]
+  },
+  {
+    "id": "hazmat_handling",
+    "title": "Hazardous Materials (HAZMAT) Handling",
+    "skills_covered": ["HAZMAT", "Chemical Safety", "Emergency Response"],
+    "difficulty": "advanced",
+    "estimated_hours": 8,
+    "prerequisites": ["warehouse_safety_foundations"],
+    "role_tags": ["labor", "safety"]
+  },
+  {
+    "id": "ergonomics_and_fatigue",
+    "title": "Physical Ergonomics & Fatigue Management",
+    "skills_covered": ["Ergonomics", "Health", "Fatigue Management"],
+    "difficulty": "beginner",
+    "estimated_hours": 3,
+    "prerequisites": [],
+    "role_tags": ["labor", "safety"]
+  },
+  {
+    "id": "supply_chain_basics",
+    "title": "Supply Chain Basics for Floor Operations",
+    "skills_covered": ["Supply Chain", "Receiving", "Dispatching"],
+    "difficulty": "intermediate",
+    "estimated_hours": 5,
+    "prerequisites": ["inventory_management_systems"],
+    "role_tags": ["operations", "logistics"]
+  }
+]

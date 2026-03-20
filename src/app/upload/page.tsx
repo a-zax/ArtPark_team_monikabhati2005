@@ -18,6 +18,7 @@ type AnalyzeResponse = {
 export default function UploadPage() {
   const [resume, setResume] = useState<File | null>(null);
   const [jdText, setJdText] = useState("");
+  const [domainType, setDomainType] = useState<"knowledge" | "labor">("knowledge");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
@@ -32,6 +33,7 @@ export default function UploadPage() {
     const formData = new FormData();
     formData.append("resume", resume);
     formData.append("jd", jdText);
+    formData.append("domainType", domainType);
 
     try {
       const res = await fetch("/api/analyze", {
@@ -70,6 +72,32 @@ export default function UploadPage() {
           Upload a resume, paste the role description, and we will extract proficiency levels, detect grounded skill gaps,
           and build a catalog-backed onboarding sequence.
         </p>
+      </motion.div>
+
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex justify-center mb-10">
+        <div className="bg-slate-900/50 p-1.5 rounded-full border border-white/10 inline-flex relative">
+          <button
+            onClick={() => setDomainType("knowledge")}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all z-10 ${
+              domainType === "knowledge" ? "text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "text-slate-400 hover:text-slate-300"
+            }`}
+          >
+            Knowledge Worker
+          </button>
+          <button
+            onClick={() => setDomainType("labor")}
+            className={`px-6 py-2.5 rounded-full text-sm font-bold transition-all z-10 ${
+              domainType === "labor" ? "text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]" : "text-slate-400 hover:text-slate-300"
+            }`}
+          >
+            Operational / Labor
+          </button>
+          <div
+            className={`absolute top-1.5 bottom-1.5 w-[calc(50%-6px)] bg-primary/20 border border-primary/30 rounded-full transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+              domainType === "knowledge" ? "left-1.5" : "left-[calc(50%+4.5px)] bg-accent/20 border-accent/30"
+            }`}
+          />
+        </div>
       </motion.div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
@@ -156,6 +184,7 @@ export default function UploadPage() {
           {result && (
             <RoadmapVisualizer
               pathway={result.pathway}
+              catalog={result.catalog}
               analysis={result.analysis}
               gap_summary={result.gap_summary}
               roi_metrics={result.roi_metrics}

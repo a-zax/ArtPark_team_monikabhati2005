@@ -23,6 +23,7 @@ import SkillRadar from "./SkillRadar";
 
 type Props = {
   pathway: LearningModule[];
+  catalog: PathwayResult["catalog"];
   analysis: GapAnalysis;
   gap_summary: PathwayResult["gap_summary"];
   roi_metrics: PathwayResult["roi_metrics"];
@@ -32,6 +33,7 @@ type Props = {
 
 export default function RoadmapVisualizer({
   pathway,
+  catalog,
   analysis,
   gap_summary,
   roi_metrics,
@@ -40,6 +42,15 @@ export default function RoadmapVisualizer({
 }: Props) {
   const [quizSkill, setQuizSkill] = useState<string | null>(null);
   const [quizScores, setQuizScores] = useState<Record<string, number>>({});
+  const [showStandardPath, setShowStandardPath] = useState(false);
+
+  const toggleStandardPath = (val: boolean) => {
+    if (document.startViewTransition) {
+      document.startViewTransition(() => setShowStandardPath(val));
+    } else {
+      setShowStandardPath(val);
+    }
+  };
 
   useEffect(() => {
     const el = document.getElementById("roadmap-top");
@@ -64,6 +75,14 @@ export default function RoadmapVisualizer({
 
   return (
     <motion.div id="roadmap-top" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full mt-24 pb-32">
+      <style jsx global>{`
+        ::view-transition-group(*),
+        ::view-transition-old(*),
+        ::view-transition-new(*) {
+          animation-duration: 0.4s;
+          animation-timing-function: cubic-bezier(0.19, 1, 0.22, 1);
+        }
+      `}</style>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-16">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent/10 border border-accent/20 mb-6">
           <Activity className="w-4 h-4 text-accent" />
@@ -165,31 +184,72 @@ export default function RoadmapVisualizer({
         </motion.div>
 
         <div className="lg:w-2/3 relative">
-          <div className="absolute left-[27px] top-6 bottom-6 w-0.5 bg-slate-800" />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+            <h3 className="text-2xl font-bold text-white">Recommended Sequence</h3>
+            
+            <div className="bg-slate-900/50 p-1 rounded-full border border-white/10 inline-flex relative w-full sm:w-[320px]">
+              <button
+                onClick={() => toggleStandardPath(true)}
+                className={`flex-1 py-1.5 rounded-full text-xs font-bold transition-all z-10 ${
+                  showStandardPath ? "text-white shadow-[0_0_15px_rgba(255,255,255,0.2)]" : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                Standard Onboarding
+              </button>
+              <button
+                onClick={() => toggleStandardPath(false)}
+                className={`flex-1 py-1.5 rounded-full text-xs font-bold transition-all z-10 ${
+                  !showStandardPath ? "text-white shadow-[0_0_15px_rgba(59,130,246,0.5)]" : "text-slate-400 hover:text-slate-300"
+                }`}
+              >
+                Personalized Path
+              </button>
+              <div
+                className={`absolute top-1 bottom-1 w-[calc(50%-4px)] bg-primary/20 border border-primary/30 rounded-full transition-all duration-300 ease-[cubic-bezier(0.19,1,0.22,1)] ${
+                  showStandardPath ? "left-1 bg-white/10 border-white/20" : "left-[calc(50%+4px)] bg-primary/20 border-primary/30"
+                }`}
+              />
+            </div>
+          </div>
+
+          <div className="absolute left-[27px] top-[74px] bottom-6 w-0.5 bg-slate-800" />
 
           <div className="space-y-10 relative">
-            {pathway.map((step, index) => (
+            {(showStandardPath ? catalog : pathway).map((item, index) => {
+              const inPathway = pathway.some((p) => p.id === item.id);
+              const step = inPathway ? pathway.find((p) => p.id === item.id)! : (item as LearningModule);
+              const isBypassed = showStandardPath && !inPathway;
+              const reasoningStr = inPathway ? step.reasoning : "Bypassed based on your existing proficiency.";
+
+              return (
               <motion.div
                 key={step.id}
+                style={{ viewTransitionName: `module-${step.id}` }}
                 initial={{ opacity: 0, x: 20 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.45 + index * 0.1 }}
-                className="flex gap-6 relative"
+                transition={{ delay: 0.1 + index * 0.05 }}
+                className={`flex gap-6 relative ${isBypassed ? "opacity-50 grayscale" : ""}`}
               >
-                <div className="relative z-10 flex-shrink-0 w-14 h-14 rounded-full bg-[#020617] border-[3px] border-primary flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.3)]">
-                  <span className="font-bold text-primary">{index + 1}</span>
+                <div className={`relative z-10 flex-shrink-0 w-14 h-14 rounded-full bg-[#020617] border-[3px] flex items-center justify-center transition-colors ${isBypassed ? "border-slate-700" : "border-primary shadow-[0_0_20px_rgba(59,130,246,0.3)]"}`}>
+                  <span className={`font-bold transition-colors ${isBypassed ? "text-slate-500" : "text-primary"}`}>{index + 1}</span>
                 </div>
 
-                <div className="flex-1 glass-panel rounded-2xl p-6 group hover:border-primary/50 transition-colors">
+                <div className={`flex-1 glass-panel rounded-2xl p-6 group transition-colors ${isBypassed ? "border-slate-800/50" : "hover:border-primary/50"}`}>
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
                       <div>
-                        <h4 className="text-xl font-bold text-white group-hover:text-primary transition-colors">{step.title}</h4>
+                        <h4 className={`text-xl font-bold transition-colors ${isBypassed ? "text-slate-500 line-through" : "text-white group-hover:text-primary"}`}>{step.title}</h4>
                         <p className="text-sm text-slate-400 mt-1">
-                          Targets {step.skills_targeted.join(", ") || "foundational readiness"} • {step.difficulty} level
+                          Targets {step.skills_targeted?.join(", ") || "foundational readiness"} • {step.difficulty} level
                         </p>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">
+                        {step.is_partial && !isBypassed && (
+                          <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border bg-orange-500/10 text-orange-400 border-orange-500/30">
+                            <Activity className="w-3.5 h-3.5" />
+                            Partial Refresher
+                          </span>
+                        )}
                         {quizScores[step.title] !== undefined ? (
                           <span
                             className={`flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border ${
@@ -229,16 +289,16 @@ export default function RoadmapVisualizer({
                       <div className="absolute top-0 left-0 w-1 h-full bg-primary/50" />
                       <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm text-slate-300 leading-relaxed">
-                          <span className="text-primary font-bold block mb-1">Reasoning Trace</span>
-                          <Typewriter text={step.reasoning} delay={0.55 + index * 0.1} />
+                        <p className={`text-sm leading-relaxed ${isBypassed ? "text-slate-500" : "text-slate-300"}`}>
+                          <span className={`${isBypassed ? "text-slate-400" : "text-primary"} font-bold block mb-1`}>Reasoning Trace</span>
+                          <Typewriter text={reasoningStr} delay={isBypassed ? 0 : 0.55 + index * 0.1} />
                         </p>
                       </div>
                     </div>
                   </div>
                 </div>
               </motion.div>
-            ))}
+            )})}
 
             <motion.div
               initial={{ opacity: 0 }}
@@ -325,6 +385,28 @@ function ProfileCard({
               <p className="font-semibold text-white">{item.skill}</p>
               <span className={`text-xs font-bold px-2.5 py-1 rounded-full border ${toneClasses}`}>{item.level}</span>
             </div>
+
+            {tone === "green" && typeof item.confidence === "number" && (
+              <div className="mt-3">
+                <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden">
+                  <div className="h-full bg-blue-500 transition-all duration-1000" style={{ width: `${item.confidence * 100}%` }} />
+                </div>
+                <div className="flex justify-between mt-1">
+                  <span className="text-[10px] text-slate-500 uppercase font-bold tracking-wider">Confidence Score</span>
+                  <span className="text-[10px] text-slate-400 font-bold">{Math.round(item.confidence * 100)}%</span>
+                </div>
+              </div>
+            )}
+
+            {tone === "green" && item.last_used_year && item.last_used_year <= new Date().getFullYear() - 3 && (item.confidence ?? 1) * 0.5 < 0.5 && (
+              <div className="mt-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs p-2.5 rounded-lg flex items-start gap-2 leading-tight">
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span>
+                  <strong>{item.skill} potentially stale.</strong> Last used {item.last_used_year}. Recommend a refresher module even though it&apos;s on your resume.
+                </span>
+              </div>
+            )}
+
             <p className="text-xs text-slate-400 mt-2">
               {typeof item.years === "number" ? `${item.years}+ years inferred` : "Years not confidently inferred"}
               {item.evidence ? ` • ${item.evidence}` : ""}

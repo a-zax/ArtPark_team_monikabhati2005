@@ -98,6 +98,8 @@ function normalizeProfile(profile: unknown): SkillProfile[] {
       level: safeLevel(raw?.level),
       years: typeof raw?.years === 'number' ? raw.years : undefined,
       evidence: typeof raw?.evidence === 'string' ? raw.evidence : undefined,
+      confidence: typeof raw?.confidence === 'number' ? raw.confidence : undefined,
+      last_used_year: typeof raw?.last_used_year === 'number' ? raw.last_used_year : undefined,
     };
   });
 }
@@ -152,6 +154,7 @@ export async function POST(request: Request) {
     const formData = await request.formData();
     const resumeFile = formData.get('resume');
     const rawJd = formData.get('jd');
+    const domainType = formData.get('domainType') === 'labor' ? 'labor' : 'knowledge';
 
     if (!(resumeFile instanceof File) || typeof rawJd !== 'string') {
       return NextResponse.json({ error: 'Resume file and job description are required.' }, { status: 400 });
@@ -172,7 +175,7 @@ export async function POST(request: Request) {
 
     const apiKey = process.env.GROQ_API_KEY;
     if (!apiKey) {
-      const pathway = generateAdaptivePathway(FALLBACK_ANALYSIS);
+      const pathway = generateAdaptivePathway(FALLBACK_ANALYSIS, domainType);
       return NextResponse.json({
         success: true,
         data: { analysis: FALLBACK_ANALYSIS, ...pathway },
@@ -192,17 +195,17 @@ export async function POST(request: Request) {
         {
           role: 'system',
           content:
-            'You are an HR onboarding analyst. Extract a structured candidate skill profile and a structured required skill profile from the resume and job description. Output strict JSON only. For each skill, include level as beginner/intermediate/advanced, optional years as a number when inferable, and a short evidence string. Include candidate_skills, required_skills, and missing_skills arrays too.',
+            'You are an HR onboarding analyst. Extract a structured candidate skill profile and a structured required skill profile from the resume and job description. Output strict JSON only. For each skill, include level as beginner/intermediate/advanced, optional years as a number when inferable, a short evidence string, confidence as a float between 0.0 and 1.0 (indicating certainty of their proficiency), and last_used_year as a 4-digit integer if inferable from resume dates. Include candidate_skills, required_skills, and missing_skills arrays too.',
         },
         {
           role: 'user',
           content: `Return JSON using this exact shape:
 {
   "candidate_profile": [
-    { "skill": "React", "level": "intermediate", "years": 2, "evidence": "Built frontend modules" }
+    { "skill": "React", "level": "intermediate", "years": 2, "evidence": "Built frontend modules", "confidence": 0.91, "last_used_year": 2023 }
   ],
   "required_profile": [
-    { "skill": "Next.js", "level": "intermediate", "years": 1, "evidence": "Required in JD" }
+    { "skill": "Next.js", "level": "intermediate", "years": 1, "evidence": "Required in JD", "confidence": 1.0 }
   ],
   "candidate_skills": ["React"],
   "required_skills": ["React", "Next.js"],
@@ -222,7 +225,7 @@ ${cleanJd}`,
 
     const parsed = JSON.parse(completion.choices[0]?.message?.content || '{}');
     const analysis = normalizeAnalysis(parsed);
-    const pathway = generateAdaptivePathway(analysis);
+    const pathway = generateAdaptivePathway(analysis, domainType);
 
     return NextResponse.json({
       success: true,

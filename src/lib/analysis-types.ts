@@ -5,6 +5,8 @@ export interface SkillProfile {
   level: SkillLevel;
   years?: number;
   evidence?: string;
+  confidence?: number;
+  last_used_year?: number;
 }
 
 export interface GapAnalysis {
@@ -13,6 +15,16 @@ export interface GapAnalysis {
   candidate_skills: string[];
   required_skills: string[];
   missing_skills: string[];
+}
+
+export interface CatalogCourse {
+  id: string;
+  title: string;
+  skills_covered: string[];
+  difficulty: SkillLevel;
+  estimated_hours: number;
+  prerequisites?: string[];
+  role_tags?: string[];
 }
 
 export interface LearningModule {
@@ -24,10 +36,12 @@ export interface LearningModule {
   skills_targeted: string[];
   prerequisites: string[];
   grounding: 'catalog';
+  is_partial?: boolean;
 }
 
 export interface PathwayResult {
   pathway: LearningModule[];
+  catalog: CatalogCourse[];
   gap_summary: {
     role_readiness_score: number;
     coverage_ratio: number;

@@ -95,7 +95,7 @@ function normalizeProfilePayload(
         confidence: typeof entry.confidence === 'number' ? entry.confidence : undefined,
       } satisfies SkillProfile;
     })
-    .filter((item): item is SkillProfile => item !== null);
+    .filter(Boolean) as SkillProfile[];
 
   return normalizeProfile(rawItems);
 }
@@ -161,7 +161,7 @@ export function deriveSkillGapDetails(analysis: GapAnalysis): SkillGapDetail[] {
     analysis.candidate_profile.map((item) => [normalizeSkillName(item.skill), item]),
   );
 
-  return analysis.required_profile
+  const gaps = analysis.required_profile
     .map((requiredSkill) => {
       const candidateSkill = candidateMap.get(normalizeSkillName(requiredSkill.skill));
       const candidateWeight = candidateSkill ? SKILL_LEVEL_WEIGHT[candidateSkill.level] : 0;
@@ -180,8 +180,9 @@ export function deriveSkillGapDetails(analysis: GapAnalysis): SkillGapDetail[] {
         evidence: candidateSkill?.evidence ?? requiredSkill.evidence,
       } satisfies SkillGapDetail;
     })
-    .filter((item): item is SkillGapDetail => item !== null)
-    .sort((a, b) => SKILL_LEVEL_WEIGHT[b.required_level] - SKILL_LEVEL_WEIGHT[a.required_level]);
+    .filter(Boolean) as SkillGapDetail[];
+
+  return gaps.sort((a, b) => SKILL_LEVEL_WEIGHT[b.required_level] - SKILL_LEVEL_WEIGHT[a.required_level]);
 }
 
 export function normalizeStructuredAnalysis(payload: unknown): GapAnalysis {

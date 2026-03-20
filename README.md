@@ -1,141 +1,227 @@
-# SyncPath AI - Adaptive Onboarding Engine
+# SyncPath AI — Adaptive Onboarding Engine
 **ArtPark CodeForge Hackathon 2026 Submission**
 
 ---
 
 ## 1. Solution Overview
-Current corporate onboarding often utilizes static, "one-size-fits-all" curricula, resulting in significant inefficiencies. Experienced hires waste time on known concepts, while beginners may be overwhelmed by advanced modules. 
 
-**SyncPath AI** is a next-generation, AI-driven adaptive learning engine. It intelligently parses a new hire's current capabilities (via Resume) and dynamically maps an optimized, personalized training pathway to reach role-specific competency based on a target Job Description. Our goal is to surgically patch missing knowledge while **eliminating 100% of redundant training hours**.
+Current corporate onboarding relies on static, "one-size-fits-all" curricula. Experienced hires waste time on known concepts, while beginners get overwhelmed by advanced modules.
 
-### The "Wow-Factor" Holistic Enhancements
-Our engine goes far beyond generic course mapping. We transform onboarding into a holistic integration platform:
-- **Corporate ROI Metrics**: Dynamically calculates exactly how many hours and training dollars were saved by bypassing redundant material.
-- **AI Mentorship Matchmaking**: Auto-assigns the new hire a Subject Matter Expert (SME) "Buddy" based on their most critical skill gap.
-- **Day-1 Sandbox Deployments**: Instead of reading theory, it generates a custom, low-risk micro-project isolating exactly what the candidate lacks for immediate practical application.
+**SyncPath AI** is a next-generation AI-driven adaptive learning engine. It intelligently parses a new hire's current capabilities (via Resume) against a target Job Description and dynamically maps a personalized, gap-free learning pathway — eliminating **100% of redundant training hours**.
+
+### Core Differentiators
+- **Zero Hallucinations**: All module recommendations are strictly grounded in a verified internal course catalog. No AI-generated course titles.
+- **Original Adaptive Algorithm**: A custom TypeScript Directed Acyclic Graph (DAG) engine — not a prompt, not a wrapper.
+- **Holistic Integration Platform**: Goes beyond course mapping with corporate ROI, mentorship, and sandbox deployment.
+
+### Holistic "Wow-Factor" Enhancements
+| Feature | Description |
+|---|---|
+| **Corporate ROI Metrics** | Calculates exact hours & budget saved by skipping redundant modules |
+| **AI Mentorship Matchmaking** | Auto-assigns an SME "Buddy" matched to the candidate's critical skill gap |
+| **Day-1 Sandbox Deployment** | Generates a custom micro-project targeting exactly what the candidate lacks |
 
 ---
 
 ## 2. Architecture & Workflow
-The system is built on a highly-optimized, serverless full-stack architecture. 
 
 ```mermaid
 graph TD
-    A[User Uploads Resume & JD] -->|Drag & Drop| B(Next.js Frontend UI)
-    B -->|FormData API Call| C[Next.js Serverless Route]
-    C -->|Feature Extraction| D{Intelligent NLP Parser}
-    
-    D -->|Candidate Proficiencies| E[Gap Analysis Module]
-    D -->|Role Requirements| E
-    
-    E -->|Identifies Skill Gaps| F(Custom Adaptive DAG Algorithm)
-    F -->|Search & Map| G[(Grounded Course Catalog)]
-    G -->|Returns Verified Modules| F
-    
-    F -->|Constructs Linear Sequence| H[Roadmap Visualizer]
-    H --> I[Final Interactive Pathway with Reasoning Trace]
-    
-    style B fill:#3b82f6,stroke:#1d4ed8,stroke-width:2px,color:#fff
-    style C fill:#0f172a,stroke:#334155,stroke-width:2px,color:#fff
-    style F fill:#8b5cf6,stroke:#6d28d9,stroke-width:2px,color:#fff
-    style G fill:#10b981,stroke:#047857,stroke-width:2px,color:#fff
+    A[User Uploads Resume + JD] -->|Drag & Drop| B(Next.js Frontend)
+    B -->|FormData POST| C[Edge Middleware Security Layer]
+    C -->|Rate Limit + Header Injection| D[Next.js Serverless API Route]
+    D -->|Input Sanitization| E{Gap Analysis Engine}
+    E -->|Candidate Skills| F[DAG Adaptive Algorithm]
+    E -->|Missing Skills| F
+    F -->|Cross-reference| G[(Grounded Course Catalog)]
+    G -->|Verified Modules| F
+    F --> H[Roadmap Visualizer]
+    F --> I[ROI Calculator]
+    F --> J[Mentor Matcher]
+    F --> K[Sandbox Generator]
+    H & I & J & K --> L[Interactive Dashboard]
+
+    style B fill:#3b82f6,stroke:#1d4ed8,color:#fff
+    style C fill:#f43f5e,stroke:#be123c,color:#fff
+    style F fill:#8b5cf6,stroke:#6d28d9,color:#fff
+    style G fill:#10b981,stroke:#047857,color:#fff
+    style L fill:#0f172a,stroke:#334155,color:#fff
 ```
 
-### The End-to-End User Journey:
-1. **Input Phase:** The user interface features a gorgeous, interactive drag-and-drop zone powered by Framer Motion.
-2. **Analysis Phase:** Unstructured text is parsed and evaluated.
-3. **Execution Phase:** The finalized visual roadmap is generated. Users can click on any Recommended Module to view the **"Reasoning Trace"**—an explicit explanation of *why* the AI chose this specific module.
+### End-to-End User Journey
+1. **Cinematic Preloader** — App mounts all WebGL environments behind a branded loading screen
+2. **Input Phase** — Interactive drag-and-drop upload zone with file validation
+3. **Security Layer** — Edge Middleware intercepts the request; rate limiter and sanitizer process inputs
+4. **Analysis Phase** — DAG algorithm computes skill gaps and maps verified course modules
+5. **Output Phase** — Full interactive dashboard with Reasoning Trace, ROI, Mentor, and Sandbox cards
 
 ---
 
 ## 3. Tech Stack & Models
-To guarantee a "Seamless industrial level workflow" and an interactive, "next-level" User Interface:
 
-*   **Frontend**: Next.js 14+ (App Router), React, Tailwind CSS.
-*   **Micro-Animations**: Framer Motion (utilized for scroll-staggering, hover states, and dynamic visual graphs).
-*   **Backend**: Next.js Serverless API Routes.
-*   **AI/LLM Engine**: Open-Source zero-cost simulation strictly optimized for Hackathon evaluation, mimicking the structured JSON output of `Llama 3` via Groq. *(Note: Evaluated as a local simulation to assure 100% open-source compliance and zero billing constraints).*
-*   **Containerization**: Docker (Multi-stage Standalone build for minimal footprint).
+| Layer | Technology |
+|---|---|
+| **Framework** | Next.js 14+ (App Router) |
+| **Styling** | Tailwind CSS, custom CSS variables |
+| **2D Animations** | Framer Motion (stagger, spring physics, typewriter) |
+| **3D WebGL** | `@react-three/fiber`, `@react-three/drei`, `three.js` |
+| **Icons** | Lucide React (custom icon set — zero emojis) |
+| **AI/LLM** | Open-source simulation of Llama 3 / Mistral structured output |
+| **Confetti** | `canvas-confetti` |
+| **Containerization** | Docker (multi-stage standalone build) |
+
+All tools are **100% free and open-source** — no API keys, no billing.
 
 ---
 
-## 4. Algorithms & Training
-### The Adaptive Logic Setup
-While pre-trained models handle the text extraction, the critical **"Adaptive Logic"** (how the system decides what to teach next) is completely original.
+## 4. Algorithms & Adaptive Logic
 
-We engineered a **Directed Acyclic Graph (DAG) mapping logic** written in TypeScript. 
+### The DAG Skill Gap Engine (`src/lib/adaptive-logic.ts`)
 
 ```mermaid
 graph LR
-    subgraph 1. Profiling
-    CS[Extracted Candidate Skills]
-    RS[Extracted Target JD Skills]
+    subgraph Profiling
+    CS[Candidate Skills]
+    RS[JD Required Skills]
     end
-    
-    subgraph 2. Computation
-    GAP{Mathematical Skill Gap Analysis}
-    ALGO[DAG Directed Pathway Mapping]
+
+    subgraph Computation
+    GAP{Set Difference: Missing Skills}
+    ALGO[DAG Pathway Mapper]
+    ROI[ROI Calculator]
+    MENTOR[Mentor Matcher]
+    SANDBOX[Sandbox Generator]
     end
-    
-    CS -.-> |React, Git, HTML| GAP
-    RS -.-> |React, Next.js, Docker| GAP
-    GAP -->|Missing: Next.js, Docker| ALGO
-    
-    subgraph 3. Grounded Knowledge Base
-    C1[Course: Next.js Fundamentals]
-    C2[Course: Advanced React State]
-    C3[Course: Docker & CI/CD Deployment]
+
+    subgraph Grounded Knowledge Base
+    C1[Next.js Fundamentals]
+    C2[Docker + CI/CD]
+    C3[ML Foundations]
     end
-    
-    ALGO -->|Identifies Coverage| C1
-    ALGO -->|Ignores Redundant| C2
-    ALGO -->|Identifies Coverage| C3
-    
-    C1 --> PATH[Optimal Curated Output Array]
-    C3 --> PATH
-    
+
+    CS -.->|Known| GAP
+    RS -.->|Required| GAP
+    GAP -->|Gap delta| ALGO
+    ALGO -->|Maps| C1 & C2 & C3
+    ALGO --> ROI & MENTOR & SANDBOX
+
     style GAP fill:#f43f5e,stroke:#be123c,color:#fff
     style ALGO fill:#8b5cf6,stroke:#6d28d9,color:#fff
-    style PATH fill:#10b981,stroke:#047857,color:#fff
+    style ROI fill:#10b981,stroke:#047857,color:#fff
 ```
 
-**How the Algorithm strictly prevents Hallucinations:**
-The mapping engine is strictly forbidden from generating generic courses. It executes a cross-reference search exclusively against our **Grounded Corporate Course Catalog** (`src/lib/course-catalog.json`). If a skill cannot map to a recorded course, a specific "Fundamentals" fallback flag is raised, assuring 100% data reliability.
+**Hallucination Prevention**: The mapper exclusively cross-references `course-catalog.json`. If a skill cannot be matched to a verified course, a "Fundamentals" fallback is triggered — never a fabricated module.
+
+**ROI Calculation**: `hours_saved = SUM(bypassed_module_hours)` — `budget_saved = hours_saved * avg_trainer_rate_usd`
 
 ---
 
-## 5. Datasets & Metrics
-*   **Skill Extraction Schema**: Developed mirroring the **O*NET database** classifications and industry-standard Kaggle resume datasets (e.g., `Kaggle/resume-dataset`).
-*   **Internal Metrics**: 
-    1.  *Redundancy Score*: Target = 0%. Ensures candidate skills have exactly zero overlap with assigned training modules.
-    2.  *Competency Coverage*: Target = 100%. Ensures all identified gaps are addressed by at least one curriculum item.
+## 5. Enterprise Security Stack
+
+SyncPath AI implements a production-grade, defense-in-depth security model across 5 layers:
+
+```mermaid
+graph TD
+    REQ[Incoming Request] --> MW[Edge Middleware]
+    MW -->|Block bots + scanners| BLK[403 Forbidden]
+    MW -->|Block path traversal| BLK
+    MW -->|Inject Security Headers| NEXT[API Route Handler]
+    NEXT -->|Rate Limit Check| RATE[Sliding Window Token Bucket]
+    RATE -->|429 Too Many Requests| ERR[Error Response]
+    RATE -->|Allowed| SAN[Input Sanitization Engine]
+    SAN -->|Strip XSS, SQL, Prompt Injection| FVAL[File Validator]
+    FVAL -->|MIME + Magic Bytes check| PROC[AI Processing Engine]
+    PROC --> RES[Secure JSON Response + Rate Limit Headers]
+
+    style MW fill:#f43f5e,stroke:#be123c,color:#fff
+    style RATE fill:#f97316,stroke:#c2410c,color:#fff
+    style SAN fill:#8b5cf6,stroke:#6d28d9,color:#fff
+    style FVAL fill:#3b82f6,stroke:#1d4ed8,color:#fff
+    style PROC fill:#10b981,stroke:#047857,color:#fff
+```
+
+| Security Layer | File | Protection |
+|---|---|---|
+| **Edge Middleware** | `src/middleware.ts` | Blocks vulnerability scanners, path traversal, injects CSP/HSTS/X-Frame headers |
+| **Rate Limiter** | `src/lib/rate-limiter.ts` | Sliding Window Token Bucket — 20 req/min per IP, zero dependencies |
+| **Input Sanitizer** | `src/lib/sanitize.ts` | Strips XSS, SQL injection, LLM prompt injection, null bytes, path traversal |
+| **File Validator** | `src/lib/file-validator.ts` | MIME type + magic bytes (binary signature) verification, 5MB cap |
+| **HTTP Headers** | `next.config.mjs` | `Content-Security-Policy`, `HSTS`, `X-Frame-Options`, `Permissions-Policy` |
 
 ---
 
-## 6. Developer Setup & Installation
+## 6. UI & Experience Features
 
-If you wish to run the ArtPark CodeForge application locally from scratch:
+| Feature | Description |
+|---|---|
+| **Cinematic Preloader** | Theater-style countdown with stage labels before the app reveals |
+| **3D Skill Constellation** | 1,300-particle WebGL floating background across all pages |
+| **3D Particle Globe** | Wireframe rotating Earth in the "How It Works" section |
+| **AI Crystal Orb** | Distorted iridescent icosahedron floating on the upload page |
+| **3D Parallax Cards** | Feature cards tilt physically toward cursor with `preserve-3d` |
+| **Magnetic Buttons** | Physics-spring pull effect on CTA elements |
+| **AI Typewriter** | Reasoning trace text prints character-by-character |
+| **Confetti Explosion** | `canvas-confetti` fires when role competency is achieved |
+| **Animated Demo Preview** | 4-scene self-playing product walkthrough on the landing page |
+| **Modern Scrollbar** | Custom slim blue scrollbar with hover glow across all browsers |
 
-### Local Node.js Development
-1. Ensure `Node.js` (LTS) is installed on your machine.
-2. Clone the repository and navigate into the source folder.
-3. Install the dependencies:
-   ```bash
-   npm install
-   ```
-4. Start the interactive development build:
-   ```bash
-   npm run dev
-   ```
-5. View the platform at: `http://localhost:3000`
+---
+
+## 7. Datasets & Metrics
+
+- **Skill Schema**: Modeled against O*NET database classifications and Kaggle resume datasets
+- **Redundancy Score**: Target = **0%** — no assigned module overlaps a known candidate skill
+- **Competency Coverage**: Target = **100%** — every identified gap is addressed by at least one module
+- **Rate Limit**: 20 requests per IP per 60-second sliding window
+
+---
+
+## 8. Developer Setup
+
+### Local Development
+```bash
+git clone <repository-url>
+cd Artpark
+npm install
+npm run dev          # Standard dev server
+npm run dev:open     # Dev server + auto-opens browser
+```
+Visit `http://localhost:3000`
 
 ### Docker Deployment
-The application is fully containerized for highly optimized environment judging.
 ```bash
 docker build -t syncpath-ai .
 docker run -p 3000:3000 syncpath-ai
 ```
-Then visit `http://localhost:3000`.
+
+### Project Structure
+```
+src/
+  app/
+    api/analyze/route.ts    # Secured AI API endpoint
+    page.tsx                # Landing page (3D + Demo)
+    upload/page.tsx         # Upload & Roadmap interface
+    layout.tsx              # Global layout with 3D layer
+  components/
+    layout/Header.tsx       # Glassmorphic navigation
+    ui/
+      RoadmapVisualizer.tsx # Full dashboard + typewriter
+      DemoAnimation.tsx     # 4-scene animated preview
+      Preloader.tsx         # Cinematic loading screen
+      HeroConstellation.tsx # Background 3D particles
+      ParticleGlobe.tsx     # 3D rotating wireframe globe
+      AICrystal.tsx         # Floating 3D iridescent orb
+      MagneticButton.tsx    # Physics-spring CTA wrapper
+      FileUploadZone.tsx    # Drag-and-drop upload
+  lib/
+    adaptive-logic.ts       # DAG pathway algorithm
+    rate-limiter.ts         # Sliding Window Token Bucket
+    sanitize.ts             # Input sanitization engine
+    file-validator.ts       # MIME + magic bytes checker
+    course-catalog.json     # Grounded knowledge base
+  middleware.ts             # Edge security interceptor
+```
 
 ---
+
 *Built with precision for the ArtPark CodeForge Hackathon 2026.*

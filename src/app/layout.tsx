@@ -3,6 +3,7 @@ import { Outfit } from 'next/font/google';
 import './globals.css';
 import Header from '@/components/layout/Header';
 import dynamic from 'next/dynamic';
+import Preloader from '@/components/ui/Preloader';
 
 const HeroConstellation = dynamic(() => import('@/components/ui/HeroConstellation'), { ssr: false });
 
@@ -21,6 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${outfit.variable} font-sans antialiased text-foreground min-h-screen flex flex-col overflow-x-hidden relative`}>
+        <Preloader />
         {/* Deep, glowing background radial gradient */}
         <div className="fixed inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900 via-background to-background -z-20 pointer-events-none" />
         

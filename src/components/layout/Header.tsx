@@ -29,12 +29,12 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-8">
           <Link href="#features" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Features</Link>
           <Link href="#how-it-works" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">How it works</Link>
-          <Link href="#demo" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Demo</Link>
+          <Link href="/upload" className="text-sm font-medium text-slate-300 hover:text-white transition-colors">Demo</Link>
         </nav>
-        <button className="flex items-center gap-2 text-sm font-semibold bg-white text-black px-6 py-2.5 rounded-full hover:bg-slate-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95">
+        <Link href="/upload" className="flex items-center gap-2 text-sm font-semibold bg-white text-black px-6 py-2.5 rounded-full hover:bg-slate-200 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95">
           <Sparkles className="w-4 h-4 text-primary" />
           Start Onboarding
-        </button>
+        </Link>
       </div>
     </motion.header>
   );

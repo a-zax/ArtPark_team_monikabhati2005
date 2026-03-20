@@ -16,7 +16,19 @@ import { GapAnalysis, SKILL_LEVEL_WEIGHT, normalizeSkillName } from "@/lib/analy
 export default function SkillRadar({ analysis }: { analysis: GapAnalysis }) {
   const data = useMemo(() => {
     const candidateMap = new Map(
-      analysis.candidate_profile.map((item) => [normalizeSkillName(item.skill), SKILL_LEVEL_WEIGHT[item.level] * 33]),
+      analysis.candidate_profile.map((item) => {
+        const confidenceBoost = typeof item.confidence === "number" ? item.confidence : 0.7;
+        const decayFactor = typeof item.decay_score === "number" ? item.decay_score : confidenceBoost;
+        return [
+          normalizeSkillName(item.skill),
+          {
+            score: Math.round(SKILL_LEVEL_WEIGHT[item.level] * 33 * decayFactor),
+            confidence: typeof item.confidence === "number" ? item.confidence : null,
+            decay: typeof item.decay_score === "number" ? item.decay_score : null,
+            stale: Boolean(item.is_stale),
+          },
+        ];
+      }),
     );
     const requiredMap = new Map(
       analysis.required_profile.map((item) => [normalizeSkillName(item.skill), SKILL_LEVEL_WEIGHT[item.level] * 33]),
@@ -31,8 +43,11 @@ export default function SkillRadar({ analysis }: { analysis: GapAnalysis }) {
 
     return allSkills.map((skill) => ({
       subject: skill,
-      Candidate: candidateMap.get(normalizeSkillName(skill)) ?? 0,
+      Candidate: candidateMap.get(normalizeSkillName(skill))?.score ?? 0,
       Required: requiredMap.get(normalizeSkillName(skill)) ?? 0,
+      confidence: candidateMap.get(normalizeSkillName(skill))?.confidence ?? null,
+      decay: candidateMap.get(normalizeSkillName(skill))?.decay ?? null,
+      stale: candidateMap.get(normalizeSkillName(skill))?.stale ?? false,
     }));
   }, [analysis]);
 
@@ -51,6 +66,15 @@ export default function SkillRadar({ analysis }: { analysis: GapAnalysis }) {
             <Radar name="Required" dataKey="Required" stroke="#8b5cf6" fill="#8b5cf6" fillOpacity={0.15} />
             <Radar name="Candidate" dataKey="Candidate" stroke="#3b82f6" fill="#3b82f6" fillOpacity={0.35} />
             <Tooltip
+              formatter={(value, name, payload) => {
+                if (name === "Candidate" && payload?.payload) {
+                  const confidence = typeof payload.payload.confidence === "number" ? `${Math.round(payload.payload.confidence * 100)}%` : "n/a";
+                  const decay = typeof payload.payload.decay === "number" ? `${Math.round(payload.payload.decay * 100)}%` : "n/a";
+                  const stale = payload.payload.stale ? "Yes" : "No";
+                  return [`${value} | confidence ${confidence} | decay ${decay} | stale ${stale}`, "Candidate"];
+                }
+                return [value, name];
+              }}
               contentStyle={{
                 backgroundColor: "rgba(15,23,42,0.9)",
                 borderColor: "rgba(255,255,255,0.1)",
@@ -65,7 +89,7 @@ export default function SkillRadar({ analysis }: { analysis: GapAnalysis }) {
       <div className="flex justify-center gap-6 pb-6 mt-2">
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-blue-500 opacity-60" />
-          <span className="text-xs text-slate-300 font-semibold">Candidate</span>
+          <span className="text-xs text-slate-300 font-semibold">Candidate Confidence-Weighted</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="w-3 h-3 rounded-full bg-accent opacity-60" />

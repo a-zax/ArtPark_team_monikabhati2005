@@ -7,6 +7,8 @@ export interface SkillProfile {
   evidence?: string;
   confidence?: number;
   last_used_year?: number;
+  decay_score?: number;
+  is_stale?: boolean;
 }
 
 export interface GapAnalysis {

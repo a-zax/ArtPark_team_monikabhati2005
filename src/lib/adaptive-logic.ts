@@ -13,9 +13,35 @@ import {
 const knowledgeCatalog = courseCatalog as CatalogCourse[];
 const laborCatalog = laborCatalogData as CatalogCourse[];
 const TRAINER_RATE_USD = 85;
+const LOW_CONFIDENCE_THRESHOLD = 0.5;
+const STALE_SKILL_THRESHOLD = 0.5;
 
 function buildKnownSkillSet(analysis: GapAnalysis) {
-  return new Set(analysis.candidate_skills.map(normalizeSkillName));
+  return new Set(
+    analysis.candidate_profile
+      .filter((item) => {
+        const confidenceOk = typeof item.confidence !== 'number' || item.confidence >= LOW_CONFIDENCE_THRESHOLD;
+        const decayOk = typeof item.decay_score !== 'number' || item.decay_score >= STALE_SKILL_THRESHOLD;
+        return confidenceOk && decayOk;
+      })
+      .map((item) => normalizeSkillName(item.skill)),
+  );
+}
+
+function getCandidateSignal(analysis: GapAnalysis, skill: string) {
+  return analysis.candidate_profile.find(
+    (item) => normalizeSkillName(item.skill) === normalizeSkillName(skill),
+  );
+}
+
+function isLowConfidenceSkill(analysis: GapAnalysis, skill: string) {
+  const profile = getCandidateSignal(analysis, skill);
+  return typeof profile?.confidence === 'number' && profile.confidence < LOW_CONFIDENCE_THRESHOLD;
+}
+
+function isStaleSkill(analysis: GapAnalysis, skill: string) {
+  const profile = getCandidateSignal(analysis, skill);
+  return Boolean(profile?.is_stale || (typeof profile?.decay_score === 'number' && profile.decay_score < STALE_SKILL_THRESHOLD));
 }
 
 function getRequiredLevel(analysis: GapAnalysis, skill: string): SkillLevel {
@@ -23,6 +49,10 @@ function getRequiredLevel(analysis: GapAnalysis, skill: string): SkillLevel {
     (item) => normalizeSkillName(item.skill) === normalizeSkillName(skill),
   );
   return profile?.level ?? 'intermediate';
+}
+
+function getRequiredWeight(analysis: GapAnalysis, skill: string) {
+  return SKILL_LEVEL_WEIGHT[getRequiredLevel(analysis, skill)];
 }
 
 function scoreCourse(course: CatalogCourse, skill: string, analysis: GapAnalysis): number {
@@ -76,7 +106,7 @@ function mapCourses(analysis: GapAnalysis, activeCatalog: CatalogCourse[]) {
   };
 }
 
-function buildReasoning(course: CatalogCourse, analysis: GapAnalysis): string {
+function buildReasoning(course: CatalogCourse, analysis: GapAnalysis, refreshType: 'full' | 'partial-confidence' | 'partial-stale') {
   const targetedSkills = course.skills_covered.filter((skill) =>
     analysis.missing_skills.map(normalizeSkillName).includes(normalizeSkillName(skill)),
   );
@@ -85,7 +115,14 @@ function buildReasoning(course: CatalogCourse, analysis: GapAnalysis): string {
       ? `Prerequisites included: ${course.prerequisites.join(', ')}.`
       : 'No prerequisite modules were required ahead of this step.';
 
-  return `Assigned from the grounded catalog to close ${targetedSkills.join(', ')}. Difficulty set to ${course.difficulty} based on the target role expectation. ${prerequisiteText}`;
+  const refreshText =
+    refreshType === 'partial-confidence'
+      ? 'Confidence-weighted detection suggests the skill is present but not strong enough for a full skip, so a partial refresher is recommended.'
+      : refreshType === 'partial-stale'
+        ? 'The skill appears on the resume but may be stale based on last-used recency, so a refresher is recommended instead of a full exemption.'
+        : 'The role gap requires full module coverage.';
+
+  return `Assigned from the grounded catalog to close ${targetedSkills.join(', ')}. Difficulty set to ${course.difficulty} based on the target role expectation. ${refreshText} ${prerequisiteText}`;
 }
 
 function calculateRoi(analysis: GapAnalysis, activeCatalog: CatalogCourse[]) {
@@ -125,8 +162,20 @@ function pickTopGap(analysis: GapAnalysis) {
 export function generateAdaptivePathway(analysis: GapAnalysis, domainType: string = 'knowledge'): PathwayResult {
   const activeCatalog = domainType === 'labor' ? laborCatalog : knowledgeCatalog;
   const { matchedMissingSkills, unmatchedMissingSkills, selectedCourses } = mapCourses(analysis, activeCatalog);
-  const readinessPenalty = matchedMissingSkills.length * 8 + unmatchedMissingSkills.length * 18;
-  const roleReadinessScore = Math.max(25, 100 - readinessPenalty);
+  const weightedMatchedPenalty = matchedMissingSkills.reduce((sum, skill) => {
+    const lowConfidencePenalty = isLowConfidenceSkill(analysis, skill) ? 4 : 0;
+    const stalePenalty = isStaleSkill(analysis, skill) ? 6 : 0;
+    return sum + lowConfidencePenalty + stalePenalty;
+  }, 0);
+  const weightedUnmatchedPenalty = unmatchedMissingSkills.reduce(
+    (sum, skill) => sum + getRequiredWeight(analysis, skill) * 10,
+    0,
+  );
+  const baseMissingPenalty = analysis.missing_skills.reduce(
+    (sum, skill) => sum + getRequiredWeight(analysis, skill) * 6,
+    0,
+  );
+  const roleReadinessScore = Math.max(20, 100 - baseMissingPenalty - weightedMatchedPenalty - weightedUnmatchedPenalty);
   const coverageRatio =
     analysis.missing_skills.length === 0
       ? 1
@@ -137,16 +186,28 @@ export function generateAdaptivePathway(analysis: GapAnalysis, domainType: strin
       analysis.missing_skills.map(normalizeSkillName).includes(normalizeSkillName(skill))
     );
 
-    const isPartial = skillsTargeted.some((tgtSkill) => {
-      const p = analysis.candidate_profile.find((cp) => normalizeSkillName(cp.skill) === normalizeSkillName(tgtSkill));
-      return p && typeof p.confidence === 'number' && p.confidence < 0.5;
-    });
+    const lowConfidenceRefresh = skillsTargeted.some((tgtSkill) => isLowConfidenceSkill(analysis, tgtSkill));
+    const staleRefresh = skillsTargeted.some((tgtSkill) => isStaleSkill(analysis, tgtSkill));
+    const isPartial = lowConfidenceRefresh || staleRefresh;
+    const refreshType: 'full' | 'partial-confidence' | 'partial-stale' =
+      lowConfidenceRefresh ? 'partial-confidence' : staleRefresh ? 'partial-stale' : 'full';
+    const partialTitleSuffix =
+      refreshType === 'partial-confidence'
+        ? ' (Confidence Refresh)'
+        : refreshType === 'partial-stale'
+          ? ' (Decay Refresh)'
+          : '';
 
     return {
       id: course.id,
-      title: isPartial ? `${course.title} (Partial Refresher)` : course.title,
-      reasoning: buildReasoning(course, analysis),
-      estimated_hours: isPartial ? Math.max(1, Math.round(course.estimated_hours / 2)) : course.estimated_hours,
+      title: isPartial ? `${course.title}${partialTitleSuffix}` : course.title,
+      reasoning: buildReasoning(course, analysis, refreshType),
+      estimated_hours:
+        refreshType === 'partial-confidence'
+          ? Math.max(1, Math.round(course.estimated_hours * 0.6))
+          : refreshType === 'partial-stale'
+            ? Math.max(1, Math.round(course.estimated_hours * 0.5))
+            : course.estimated_hours,
       difficulty: course.difficulty,
       skills_targeted: skillsTargeted,
       prerequisites: course.prerequisites ?? [],

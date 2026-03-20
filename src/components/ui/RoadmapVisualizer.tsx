@@ -43,6 +43,9 @@ export default function RoadmapVisualizer({
   const [quizSkill, setQuizSkill] = useState<string | null>(null);
   const [quizScores, setQuizScores] = useState<Record<string, number>>({});
   const [showStandardPath, setShowStandardPath] = useState(false);
+  const standardHours = catalog.reduce((sum, item) => sum + item.estimated_hours, 0);
+  const personalizedHours = pathway.reduce((sum, item) => sum + item.estimated_hours, 0);
+  const skippedModules = Math.max(0, catalog.length - pathway.length);
 
   const toggleStandardPath = (val: boolean) => {
     if (document.startViewTransition) {
@@ -185,7 +188,12 @@ export default function RoadmapVisualizer({
 
         <div className="lg:w-2/3 relative">
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
-            <h3 className="text-2xl font-bold text-white">Recommended Sequence</h3>
+            <div>
+              <h3 className="text-2xl font-bold text-white">Recommended Sequence</h3>
+              <p className="text-sm text-slate-400 mt-1">
+                Compare generic onboarding against the AI-adaptive path and make the time savings visible.
+              </p>
+            </div>
             
             <div className="bg-slate-900/50 p-1 rounded-full border border-white/10 inline-flex relative w-full sm:w-[320px]">
               <button
@@ -209,6 +217,24 @@ export default function RoadmapVisualizer({
                   showStandardPath ? "left-1 bg-white/10 border-white/20" : "left-[calc(50%+4px)] bg-primary/20 border-primary/30"
                 }`}
               />
+            </div>
+          </div>
+
+          <div className="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="glass-panel rounded-2xl px-4 py-3 border border-white/10">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-slate-500 font-bold">Standard Track</p>
+              <p className="text-2xl font-extrabold text-white mt-1">{catalog.length} modules</p>
+              <p className="text-sm text-slate-400 mt-1">{standardHours} total hours</p>
+            </div>
+            <div className="glass-panel rounded-2xl px-4 py-3 border border-primary/20">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-primary/70 font-bold">AI-Adaptive Track</p>
+              <p className="text-2xl font-extrabold text-white mt-1">{pathway.length} modules</p>
+              <p className="text-sm text-slate-300 mt-1">{personalizedHours} total hours</p>
+            </div>
+            <div className="glass-panel rounded-2xl px-4 py-3 border border-green-500/20">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-green-400/80 font-bold">Visible Impact</p>
+              <p className="text-2xl font-extrabold text-white mt-1">{skippedModules} modules bypassed</p>
+              <p className="text-sm text-slate-300 mt-1">{Math.max(0, standardHours - personalizedHours)} hours trimmed</p>
             </div>
           </div>
 
@@ -247,7 +273,7 @@ export default function RoadmapVisualizer({
                         {step.is_partial && !isBypassed && (
                           <span className="flex items-center gap-1.5 text-xs font-bold px-3 py-1.5 rounded-full border bg-orange-500/10 text-orange-400 border-orange-500/30">
                             <Activity className="w-3.5 h-3.5" />
-                            Partial Refresher
+                            Guided Refresher
                           </span>
                         )}
                         {quizScores[step.title] !== undefined ? (
@@ -398,7 +424,7 @@ function ProfileCard({
               </div>
             )}
 
-            {tone === "green" && item.last_used_year && item.last_used_year <= new Date().getFullYear() - 3 && (item.confidence ?? 1) * 0.5 < 0.5 && (
+            {tone === "green" && item.is_stale && (
               <div className="mt-4 bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs p-2.5 rounded-lg flex items-start gap-2 leading-tight">
                 <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
                 <span>
@@ -410,6 +436,7 @@ function ProfileCard({
             <p className="text-xs text-slate-400 mt-2">
               {typeof item.years === "number" ? `${item.years}+ years inferred` : "Years not confidently inferred"}
               {item.evidence ? ` • ${item.evidence}` : ""}
+              {typeof item.decay_score === "number" ? ` • decay score ${Math.round(item.decay_score * 100)}%` : ""}
             </p>
           </div>
         ))}

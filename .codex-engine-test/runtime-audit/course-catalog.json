@@ -1,0 +1,146 @@
+[
+    {
+        "id": "web_foundations",
+        "title": "Modern Web Foundations",
+        "skills_covered": ["HTML", "CSS", "JavaScript", "Responsive Design"],
+        "difficulty": "beginner",
+        "estimated_hours": 6,
+        "prerequisites": [],
+        "role_tags": ["engineering", "design", "marketing"]
+    },
+    {
+        "id": "react_foundations",
+        "title": "React Component Development",
+        "skills_covered": ["React", "Component Architecture", "State Management"],
+        "difficulty": "beginner",
+        "estimated_hours": 6,
+        "prerequisites": ["web_foundations"],
+        "role_tags": ["engineering"]
+    },
+    {
+        "id": "nextjs_app_router",
+        "title": "Next.js App Router Delivery",
+        "skills_covered": ["Next.js", "SSR", "API Integration"],
+        "difficulty": "intermediate",
+        "estimated_hours": 8,
+        "prerequisites": ["react_foundations"],
+        "role_tags": ["engineering"]
+    },
+    {
+        "id": "python_fundamentals",
+        "title": "Python for Automation and Analytics",
+        "skills_covered": ["Python", "Scripting", "Data Processing"],
+        "difficulty": "beginner",
+        "estimated_hours": 6,
+        "prerequisites": [],
+        "role_tags": ["engineering", "analytics", "operations"]
+    },
+    {
+        "id": "data_analysis",
+        "title": "Business Data Analysis",
+        "skills_covered": ["SQL", "Excel", "Data Analysis", "Reporting"],
+        "difficulty": "beginner",
+        "estimated_hours": 7,
+        "prerequisites": [],
+        "role_tags": ["analytics", "finance", "operations"]
+    },
+    {
+        "id": "ml_foundations",
+        "title": "Applied Machine Learning Foundations",
+        "skills_covered": ["Machine Learning", "Feature Engineering", "Model Evaluation"],
+        "difficulty": "intermediate",
+        "estimated_hours": 8,
+        "prerequisites": ["python_fundamentals", "data_analysis"],
+        "role_tags": ["engineering", "analytics"]
+    },
+    {
+        "id": "llm_workflows",
+        "title": "LLM Integration Workflows",
+        "skills_covered": ["LLMs", "Prompt Engineering", "API Integration"],
+        "difficulty": "intermediate",
+        "estimated_hours": 5,
+        "prerequisites": ["python_fundamentals"],
+        "role_tags": ["engineering", "analytics", "support"]
+    },
+    {
+        "id": "devops_ci_cd",
+        "title": "Containerization and CI/CD",
+        "skills_covered": ["Docker", "CI/CD", "Deployment", "Git"],
+        "difficulty": "intermediate",
+        "estimated_hours": 8,
+        "prerequisites": [],
+        "role_tags": ["engineering", "operations"]
+    },
+    {
+        "id": "cloud_operations",
+        "title": "Cloud Operations Essentials",
+        "skills_covered": ["AWS", "Cloud Operations", "Monitoring", "Incident Management"],
+        "difficulty": "intermediate",
+        "estimated_hours": 8,
+        "prerequisites": ["devops_ci_cd"],
+        "role_tags": ["engineering", "operations"]
+    },
+    {
+        "id": "support_operations",
+        "title": "Customer Support Operations",
+        "skills_covered": ["Customer Support", "Ticketing", "Escalation Management", "SLA Management"],
+        "difficulty": "beginner",
+        "estimated_hours": 5,
+        "prerequisites": [],
+        "role_tags": ["support", "operations"]
+    },
+    {
+        "id": "sales_onboarding",
+        "title": "Consultative Sales Fundamentals",
+        "skills_covered": ["Sales", "Lead Qualification", "CRM", "Negotiation"],
+        "difficulty": "beginner",
+        "estimated_hours": 6,
+        "prerequisites": [],
+        "role_tags": ["sales"]
+    },
+    {
+        "id": "warehouse_safety",
+        "title": "Warehouse Safety and Workflow",
+        "skills_covered": ["Warehouse Operations", "Inventory Management", "Safety Compliance"],
+        "difficulty": "beginner",
+        "estimated_hours": 5,
+        "prerequisites": [],
+        "role_tags": ["operations"]
+    },
+    {
+        "id": "manufacturing_quality",
+        "title": "Manufacturing Quality Control",
+        "skills_covered": ["Quality Control", "SOP Compliance", "Root Cause Analysis"],
+        "difficulty": "intermediate",
+        "estimated_hours": 6,
+        "prerequisites": [],
+        "role_tags": ["operations"]
+    },
+    {
+        "id": "project_coordination",
+        "title": "Project Coordination and Stakeholder Updates",
+        "skills_covered": ["Project Coordination", "Communication", "Documentation", "Risk Tracking"],
+        "difficulty": "beginner",
+        "estimated_hours": 5,
+        "prerequisites": [],
+        "role_tags": ["operations", "marketing", "finance", "engineering"]
+    },
+    {
+        "id": "leadership_foundations",
+        "title": "Team Leadership and Coaching",
+        "skills_covered": ["Leadership", "Coaching", "Communication", "Feedback"],
+        "difficulty": "advanced",
+        "estimated_hours": 7,
+        "prerequisites": ["project_coordination"],
+        "role_tags": ["operations", "sales", "engineering", "support"]
+    },
+    {
+        "id": "finance_controls",
+        "title": "Finance Controls and Reconciliation",
+        "skills_covered": ["Financial Analysis", "Reconciliation", "Compliance", "Reporting"],
+        "difficulty": "intermediate",
+        "estimated_hours": 7,
+        "prerequisites": ["data_analysis"],
+        "role_tags": ["finance"]
+    }
+]

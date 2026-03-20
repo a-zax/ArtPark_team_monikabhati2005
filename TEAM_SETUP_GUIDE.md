@@ -1,4 +1,4 @@
-# 🚀 SyncPath AI - Teammate Setup Guide
+# SyncPath AI - Teammate Setup Guide
 
 Welcome! If you are reading this, you are about to run our Hackathon project, **SyncPath AI**, on your own computer. 
 
@@ -65,6 +65,6 @@ In that black command window you just opened, do the following:
    **`http://localhost:3000`**
 3. Press **Enter**.
 
-🎉 **You're done!** The SyncPath AI Onboarding Engine should now be running beautifully on your screen. You can upload resumes, view the interactive reasoning traces, and test clicking around exactly like a real user!
+**You are done!** The SyncPath AI Onboarding Engine should now be running beautifully on your screen. You can upload resumes, view the interactive reasoning traces, and test clicking around exactly like a real user!
 
 > **Note:** To shut down the application when you are finished testing, just close the black command window, or click inside it and press **Ctrl + C**.

@@ -3,12 +3,12 @@
 
 ---
 
-## 🚀 1. Solution Overview
+## 1. Solution Overview
 Current corporate onboarding often utilizes static, "one-size-fits-all" curricula, resulting in significant inefficiencies. Experienced hires waste time on known concepts, while beginners may be overwhelmed by advanced modules. 
 
 **SyncPath AI** is a next-generation, AI-driven adaptive learning engine. It intelligently parses a new hire's current capabilities (via Resume) and dynamically maps an optimized, personalized training pathway to reach role-specific competency based on a target Job Description. Our goal is to surgically patch missing knowledge while **eliminating 100% of redundant training hours**.
 
-### 🌟 The "Wow-Factor" Holistic Enhancements
+### The "Wow-Factor" Holistic Enhancements
 Our engine goes far beyond generic course mapping. We transform onboarding into a holistic integration platform:
 - **Corporate ROI Metrics**: Dynamically calculates exactly how many hours and training dollars were saved by bypassing redundant material.
 - **AI Mentorship Matchmaking**: Auto-assigns the new hire a Subject Matter Expert (SME) "Buddy" based on their most critical skill gap.
@@ -16,7 +16,7 @@ Our engine goes far beyond generic course mapping. We transform onboarding into 
 
 ---
 
-## 🏗 2. Architecture & Workflow
+## 2. Architecture & Workflow
 The system is built on a highly-optimized, serverless full-stack architecture. 
 
 ```mermaid
@@ -48,7 +48,7 @@ graph TD
 
 ---
 
-## 💻 3. Tech Stack & Models
+## 3. Tech Stack & Models
 To guarantee a "Seamless industrial level workflow" and an interactive, "next-level" User Interface:
 
 *   **Frontend**: Next.js 14+ (App Router), React, Tailwind CSS.
@@ -59,7 +59,7 @@ To guarantee a "Seamless industrial level workflow" and an interactive, "next-le
 
 ---
 
-## 🧠 4. Algorithms & Training
+## 4. Algorithms & Training
 ### The Adaptive Logic Setup
 While pre-trained models handle the text extraction, the critical **"Adaptive Logic"** (how the system decides what to teach next) is completely original.
 
@@ -104,7 +104,7 @@ The mapping engine is strictly forbidden from generating generic courses. It exe
 
 ---
 
-## 📊 5. Datasets & Metrics
+## 5. Datasets & Metrics
 *   **Skill Extraction Schema**: Developed mirroring the **O*NET database** classifications and industry-standard Kaggle resume datasets (e.g., `Kaggle/resume-dataset`).
 *   **Internal Metrics**: 
     1.  *Redundancy Score*: Target = 0%. Ensures candidate skills have exactly zero overlap with assigned training modules.
@@ -112,7 +112,7 @@ The mapping engine is strictly forbidden from generating generic courses. It exe
 
 ---
 
-## 🛠 6. Developer Setup & Installation
+## 6. Developer Setup & Installation
 
 If you wish to run the ArtPark CodeForge application locally from scratch:
 

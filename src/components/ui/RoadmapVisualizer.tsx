@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { CheckCircle2, AlertCircle, Clock, Info, TrendingDown, Users, Target, Activity } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface PathwayStep {
   id: string;
@@ -19,8 +20,11 @@ interface GapAnalysis {
 export default function RoadmapVisualizer({ 
   pathway, 
   analysis,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   roi_metrics,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mentorship_match,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sandbox_project
 }: { 
   pathway: PathwayStep[], 
@@ -32,6 +36,24 @@ export default function RoadmapVisualizer({
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sandbox_project: any
 }) {
+
+  useEffect(() => {
+    // Fire confetti when the roadmap fully generates
+    const totalDelay = 0.5 + (pathway.length * 0.1) + 0.6;
+    const timer = setTimeout(() => {
+      import("canvas-confetti").then((module) => {
+        const confetti = module.default;
+        confetti({
+          particleCount: 200,
+          spread: 90,
+          origin: { y: 0.9 },
+          colors: ['#3b82f6', '#10b981', '#8b5cf6']
+        });
+      });
+    }, totalDelay * 1000);
+    return () => clearTimeout(timer);
+  }, [pathway.length]);
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -166,9 +188,9 @@ export default function RoadmapVisualizer({
                       <div className="absolute top-0 left-0 w-1 h-full bg-primary/50" />
                       <Info className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                       <div>
-                        <p className="text-sm text-slate-300 leading-relaxed">
-                          <span className="text-primary font-bold block mb-1">Reasoning Trace</span>
-                          {step.reasoning}
+                        <p className="text-sm text-slate-300 leading-relaxed font-mono">
+                          <span className="text-primary font-bold block mb-1 font-sans">Reasoning Trace</span>
+                          <Typewriter text={step.reasoning} delay={0.5 + (index * 0.1) + 0.2} />
                         </p>
                       </div>
                     </div>
@@ -195,5 +217,39 @@ export default function RoadmapVisualizer({
         </div>
       </div>
     </motion.div>
+  );
+}
+
+function Typewriter({ text, delay }: { text: string, delay: number }) {
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setInView(true), delay * 1000);
+    return () => clearTimeout(timer);
+  }, [delay]);
+
+  if (!inView) return <span className="opacity-0">{text}</span>;
+
+  return (
+    <motion.span
+      initial="hidden"
+      animate="visible"
+      variants={{
+        visible: { transition: { staggerChildren: 0.015 } },
+        hidden: {}
+      }}
+    >
+      {text.split("").map((char, index) => (
+        <motion.span
+          key={index}
+          variants={{
+            visible: { opacity: 1, display: "inline" },
+            hidden: { opacity: 0, display: "none" }
+          }}
+        >
+          {char}
+        </motion.span>
+      ))}
+    </motion.span>
   );
 }

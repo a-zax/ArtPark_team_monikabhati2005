@@ -20,6 +20,18 @@ Corporate onboarding is often static, role-agnostic, and inefficient. Experience
 | **Interactive UX** | Includes roadmap timeline, skill radar, AI quiz modal, and calendar export |
 | **Cross-Domain Coverage** | Supports engineering, analytics, finance, support, sales, and operations pathways |
 
+## Submission Deliverables
+
+This repository already contains the core submission materials and supporting docs:
+
+- **Public GitHub repository**: full application source, adaptive logic, benchmark scripts, and Dockerfile
+- **Detailed README**: setup, dependencies, architecture, algorithms, datasets, and metrics
+- **Dockerization**: [Dockerfile](./Dockerfile)
+- **Teammate install guide**: [TEAM_SETUP_GUIDE.md](./TEAM_SETUP_GUIDE.md)
+- **Video demo script**: [DEMO_VIDEO_SCRIPT.md](./DEMO_VIDEO_SCRIPT.md)
+- **5-slide deck content**: [PRESENTATION_5_SLIDE_DECK.md](./PRESENTATION_5_SLIDE_DECK.md)
+- **Submission checklist**: [SUBMISSION_CHECKLIST.md](./SUBMISSION_CHECKLIST.md)
+
 ---
 
 ## 2. Architecture & Workflow
@@ -77,13 +89,40 @@ graph TD
 | **Export** | custom `.ics` calendar generation |
 | **Containerization** | Docker |
 
+### Dependency snapshot
+
+Runtime dependencies from [package.json](./package.json):
+
+- `next`, `react`, `react-dom`
+- `groq-sdk`
+- `pdf-parse`, `mammoth`
+- `framer-motion`
+- `recharts`
+- `three`, `@react-three/fiber`, `@react-three/drei`
+- `clsx`, `tailwind-merge`, `tailwindcss-animate`
+
+Development dependencies:
+
+- `typescript`
+- `eslint`, `eslint-config-next`
+- `tailwindcss`
+- `postcss`
+
+### Model transparency
+
+- **Production LLM**: `llama-3.3-70b-versatile` via Groq
+- **Quiz-generation LLM**: `llama-3.3-70b-versatile` via Groq
+- **Embedding model**: not used in the current prototype
+- **Adaptive pathing**: original local implementation in this repository
+- **Benchmarking**: executed locally against public datasets using catalog-aligned heuristics plus the real adaptive engine
+
 ---
 
 ## 4. Algorithms & Training Logic
 
 ### Adaptive Pathing Engine
 
-The logic lives in [src/lib/adaptive-logic.ts](/d:/Artpark/src/lib/adaptive-logic.ts).
+The logic lives in [src/lib/adaptive-logic.ts](./src/lib/adaptive-logic.ts).
 
 ```mermaid
 graph LR
@@ -116,14 +155,14 @@ graph LR
 
 ### Grounding rule
 
-All roadmap modules must come from [src/lib/course-catalog.json](/d:/Artpark/src/lib/course-catalog.json).  
+All roadmap modules must come from [src/lib/course-catalog.json](./src/lib/course-catalog.json) or [src/lib/labor-catalog.json](./src/lib/labor-catalog.json).  
 If a missing skill is not present in the catalog, it is surfaced as an **unmatched gap** for manual review instead of generating a fake course.
 
 ---
 
 ## 5. Data Model
 
-The shared analysis contract lives in [src/lib/analysis-types.ts](/d:/Artpark/src/lib/analysis-types.ts).
+The shared analysis contract lives in [src/lib/analysis-types.ts](./src/lib/analysis-types.ts).
 
 ```mermaid
 classDiagram
@@ -297,6 +336,20 @@ npm run dev
 
 Open `http://localhost:3000`
 
+### Reproduce the public dataset benchmark
+
+After the Kaggle datasets are available inside the local `.datasets/` folder, run:
+
+```bash
+npm run benchmark:datasets
+```
+
+This generates:
+
+- `.codex-engine-test/benchmark-cases.json`
+- `.codex-engine-test/benchmark-report.json`
+- `.codex-engine-test/benchmark-report.md`
+
 ### Docker
 
 ```bash
@@ -316,11 +369,49 @@ docker run -p 3000:3000 -e GROQ_API_KEY=your_groq_api_key_here cognisync-ai
 
 ## 12. Datasets & Metrics
 
-### Relevant public references
+### Public datasets used
 
-- O*NET database: https://www.onetcenter.org/db_releases.html
-- Resume dataset: https://www.kaggle.com/datasets/snehaanbhawal/resume-dataset/data
-- Job description dataset: https://www.kaggle.com/datasets/kshitizregmi/jobs-and-job-description
+- **Resume dataset used in benchmarking**: https://www.kaggle.com/datasets/snehaanbhawal/resume-dataset/data
+- **Job description dataset used in benchmarking**: https://www.kaggle.com/datasets/kshitizregmi/jobs-and-job-description
+
+### Public datasets cited for transparency / future expansion
+
+- **O*NET release index**: https://www.onetcenter.org/db_releases.html
+
+### Benchmark harness
+
+The public benchmark pipeline lives in:
+
+- [scripts/prepare-dataset-benchmark.py](./scripts/prepare-dataset-benchmark.py)
+- [scripts/run-dataset-benchmark.js](./scripts/run-dataset-benchmark.js)
+- [.codex-engine-test/benchmark-report.md](./.codex-engine-test/benchmark-report.md)
+
+```mermaid
+flowchart LR
+    A[Resume.csv] --> B[Catalog-Aligned Skill Extraction]
+    C[job_title_des.csv] --> B
+    B --> D[GapAnalysis Cases]
+    D --> E[Adaptive Pathing Engine]
+    E --> F[Benchmark Report]
+
+    style B fill:#3b82f6,stroke:#1d4ed8,color:#fff
+    style E fill:#10b981,stroke:#047857,color:#fff
+    style F fill:#0f172a,stroke:#334155,color:#fff
+```
+
+### Current benchmark summary
+
+Using the local public dataset copies:
+
+- `2484` resume rows loaded
+- `2277` job rows loaded
+- `15` benchmark-ready technical job titles after filtering
+- `30` executed benchmark cases
+- `1.0` catalog grounding rate
+- `35.87` aligned-case average readiness
+- `27.4` stress-case average readiness
+- `8.47` readiness delta between aligned and stress cases
+- `0.0` unmatched-gap rate on the evaluated technical subset
 
 ### Metrics exposed by the engine
 
@@ -330,6 +421,12 @@ docker run -p 3000:3000 -e GROQ_API_KEY=your_groq_api_key_here cognisync-ai
 - redundant modules bypassed
 - hours saved
 - estimated budget saved
+
+### Benchmark interpretation
+
+- The current public benchmark is strongest for **technical / desk roles**, because the Kaggle JD dataset is heavily tech-skewed.
+- The product itself still supports broader domain catalogs for finance, support, sales, operations, and labor pathways.
+- O*NET is cited for compliance and future taxonomy enrichment, but is **not yet wired into the current production path**.
 
 ---
 
@@ -345,8 +442,10 @@ For the 2-3 minute demo:
 6. Open a quiz for one module.
 7. Export the onboarding schedule as an `.ics` calendar file.
 
+For a ready-to-record narration and scene order, use [DEMO_VIDEO_SCRIPT.md](./DEMO_VIDEO_SCRIPT.md).
+
 ---
 
 ## 14. Teammate Setup
 
-For a detailed beginner-friendly setup walkthrough, see [TEAM_SETUP_GUIDE.md](/d:/Artpark/TEAM_SETUP_GUIDE.md).
+For a detailed beginner-friendly setup walkthrough, see [TEAM_SETUP_GUIDE.md](./TEAM_SETUP_GUIDE.md).

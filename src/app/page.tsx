@@ -5,6 +5,7 @@ import { ArrowRight, FileText, Blocks, Zap, Crosshair, BrainCircuit, Activity } 
 import Link from 'next/link';
 import MagneticButton from '@/components/ui/MagneticButton';
 import dynamic from 'next/dynamic';
+import DemoAnimation from '@/components/ui/DemoAnimation';
 
 const ParticleGlobe = dynamic(() => import('@/components/ui/ParticleGlobe'), { ssr: false });
 
@@ -139,6 +140,9 @@ export default function Home() {
           />
         </div>
       </section>
+
+      {/* 4. DEMO ANIMATION SECTION */}
+      <DemoAnimation />
 
       {/* CALL TO ACTION */}
       <section className="w-full py-32 text-center">

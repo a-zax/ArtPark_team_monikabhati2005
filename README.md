@@ -83,24 +83,23 @@ flowchart TD
 
 ```mermaid
 graph TD
-    UI[Next.js UI] --> ANALYZE[/api/analyze]
-    UI --> QUIZ[/api/quiz]
-    ANALYZE --> VALIDATOR[File validator]
-    ANALYZE --> EXTRACTOR[PDF DOCX TXT extractor]
-    ANALYZE --> SANITIZER[Sanitizer]
-    ANALYZE --> HEURISTIC[Deterministic parser]
-    ANALYZE --> GROQ[Groq structured extraction]
-    HEURISTIC --> MERGE[Hybrid analysis merge]
+    UI["Next.js UI"] --> ANALYZE["/api/analyze"]
+    UI --> QUIZ["/api/quiz"]
+    ANALYZE --> VALIDATOR["File validator"]
+    ANALYZE --> EXTRACTOR["PDF DOCX TXT extractor"]
+    ANALYZE --> SANITIZER["Sanitizer"]
+    ANALYZE --> HEURISTIC["Deterministic parser"]
+    ANALYZE --> GROQ["Groq structured extraction"]
+    HEURISTIC --> MERGE["Hybrid analysis merge"]
     GROQ --> MERGE
-    MERGE --> GAP[Gap engine]
-    GAP --> PATH[Adaptive pathing]
-    PATH --> CATALOG[Grounded course catalog]
-    PATH --> ROI[Readiness and ROI metrics]
-    PATH --> STAGES[Foundation Core Applied stages]
+    MERGE --> GAP["Gap engine"]
+    GAP --> PATH["Adaptive pathing"]
+    PATH --> CATALOG["Grounded course catalog"]
+    PATH --> ROI["Readiness and ROI metrics"]
+    PATH --> STAGES["Foundation Core Applied stages"]
     QUIZ --> GROQ
-    QUIZ --> FALLBACK[Fallback quiz generator]
+    QUIZ --> FALLBACK["Fallback quiz generator"]
 ```
-
 ## Adaptive Pathing Logic
 
 ```mermaid

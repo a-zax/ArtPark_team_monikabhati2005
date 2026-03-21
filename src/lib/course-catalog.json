@@ -15,7 +15,7 @@
     "skills_covered": ["TypeScript", "JavaScript", "Documentation"],
     "difficulty": "beginner",
     "estimated_hours": 5,
-    "prerequisites": ["web_foundations"],
+    "prerequisites": [],
     "role_tags": ["engineering"],
     "outcomes": ["Use types to reduce regressions", "Model API payloads and UI state safely"]
   },
@@ -25,7 +25,7 @@
     "skills_covered": ["React", "JavaScript", "Component Architecture"],
     "difficulty": "beginner",
     "estimated_hours": 6,
-    "prerequisites": ["web_foundations"],
+    "prerequisites": [],
     "role_tags": ["engineering"],
     "outcomes": ["Build reusable components", "Manage local state and props clearly"]
   },
@@ -142,7 +142,7 @@
   {
     "id": "support_operations",
     "title": "Customer Support Operations",
-    "skills_covered": ["Customer Support", "Ticketing", "Communication"],
+    "skills_covered": ["Customer Support", "Ticketing", "Communication", "CRM"],
     "difficulty": "beginner",
     "estimated_hours": 5,
     "prerequisites": [],
@@ -152,7 +152,7 @@
   {
     "id": "support_escalations",
     "title": "Support Escalations and SLA Recovery",
-    "skills_covered": ["Escalation Management", "SLA Management", "Root Cause Analysis"],
+    "skills_covered": ["Escalation Management", "SLA Management", "Root Cause Analysis", "Reporting"],
     "difficulty": "intermediate",
     "estimated_hours": 6,
     "prerequisites": ["support_operations"],

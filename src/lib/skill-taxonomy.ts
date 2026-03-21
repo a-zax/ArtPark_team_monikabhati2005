@@ -15,19 +15,19 @@ type SkillSignal = {
   confidence: number;
 };
 
-const ADVANCED_HINTS = ['advanced', 'expert', 'architect', 'lead', 'own', 'deep expertise'];
+const ADVANCED_HINTS = ['advanced', 'expert', 'architect', 'deep expertise', 'expert-level'];
 const BEGINNER_HINTS = ['basic', 'exposure', 'familiarity', 'introductory', 'working knowledge'];
 const INTERMEDIATE_HINTS = ['hands-on', 'solid', 'practical', 'experience with', 'proficient'];
 
 export const SKILL_TAXONOMY: SkillDefinition[] = [
   { canonical: 'React', aliases: ['react', 'react.js'], role_tracks: ['engineering'] },
   { canonical: 'Next.js', aliases: ['next.js', 'nextjs'], role_tracks: ['engineering'] },
-  { canonical: 'JavaScript', aliases: ['javascript', 'js'], role_tracks: ['engineering'] },
-  { canonical: 'TypeScript', aliases: ['typescript', 'ts'], role_tracks: ['engineering'] },
-  { canonical: 'Node.js', aliases: ['node.js', 'nodejs', 'node'], role_tracks: ['engineering'] },
+  { canonical: 'JavaScript', aliases: ['javascript'], role_tracks: ['engineering'] },
+  { canonical: 'TypeScript', aliases: ['typescript'], role_tracks: ['engineering'] },
+  { canonical: 'Node.js', aliases: ['node.js', 'nodejs'], role_tracks: ['engineering'] },
   { canonical: 'API Integration', aliases: ['rest api', 'apis', 'api integration', 'graphql'], role_tracks: ['engineering', 'analytics', 'support'] },
   { canonical: 'Git', aliases: ['git', 'github', 'gitlab'], role_tracks: ['engineering', 'analytics', 'operations'] },
-  { canonical: 'Testing', aliases: ['testing', 'unit testing', 'integration testing', 'qa'], role_tracks: ['engineering', 'operations'] },
+  { canonical: 'Testing', aliases: ['testing', 'unit testing', 'integration testing'], role_tracks: ['engineering', 'operations'] },
   { canonical: 'Docker', aliases: ['docker', 'containerization', 'containers'], role_tracks: ['engineering', 'operations'] },
   { canonical: 'CI/CD', aliases: ['ci/cd', 'ci cd', 'continuous integration', 'continuous delivery'], role_tracks: ['engineering', 'operations'] },
   { canonical: 'AWS', aliases: ['aws', 'amazon web services'], role_tracks: ['engineering', 'operations'] },
@@ -35,8 +35,8 @@ export const SKILL_TAXONOMY: SkillDefinition[] = [
   { canonical: 'Python', aliases: ['python'], role_tracks: ['engineering', 'analytics', 'operations'] },
   { canonical: 'SQL', aliases: ['sql', 'mysql', 'postgresql', 'postgres'], role_tracks: ['analytics', 'engineering', 'finance'] },
   { canonical: 'Excel', aliases: ['excel', 'spreadsheets'], role_tracks: ['analytics', 'finance', 'operations'] },
-  { canonical: 'Data Analysis', aliases: ['data analysis', 'analytics', 'analysis'], role_tracks: ['analytics', 'finance', 'operations'] },
-  { canonical: 'Reporting', aliases: ['reporting', 'report creation', 'dashboards'], role_tracks: ['analytics', 'finance', 'operations'] },
+  { canonical: 'Data Analysis', aliases: ['data analysis', 'business analysis', 'analytics'], role_tracks: ['analytics', 'finance', 'operations'] },
+  { canonical: 'Reporting', aliases: ['reporting', 'report creation', 'reports'], role_tracks: ['analytics', 'finance', 'operations'] },
   { canonical: 'Power BI', aliases: ['power bi', 'powerbi'], role_tracks: ['analytics', 'finance'] },
   { canonical: 'Machine Learning', aliases: ['machine learning', 'ml models', 'model training'], role_tracks: ['engineering', 'analytics'] },
   { canonical: 'Feature Engineering', aliases: ['feature engineering'], role_tracks: ['analytics', 'engineering'] },

@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import dynamic from "next/dynamic";
-import { motion, AnimatePresence } from "framer-motion";
-import { startTransition, useMemo, useState } from "react";
+import dynamic from 'next/dynamic';
+import { AnimatePresence, motion } from 'framer-motion';
+import { startTransition, useState } from 'react';
 import {
   AlertCircle,
   ArrowRight,
@@ -11,23 +11,41 @@ import {
   Loader2,
   ShieldCheck,
   Sparkles,
-} from "lucide-react";
+} from 'lucide-react';
 
-import FileUploadZone from "@/components/ui/FileUploadZone";
-import { AnalysisMeta, GapAnalysis, PathwayResult } from "@/lib/analysis-types";
-import { demoScenarios } from "@/lib/demo-scenarios";
+import FileUploadZone from '@/components/ui/FileUploadZone';
+import { AnalysisMeta, GapAnalysis, PathwayResult } from '@/lib/analysis-types';
+import { demoScenarios } from '@/lib/demo-scenarios';
 
-const AICrystal = dynamic(() => import("@/components/ui/AICrystal"), { ssr: false });
-const RoadmapVisualizer = dynamic(() => import("@/components/ui/RoadmapVisualizer"), { ssr: false });
+const AICrystal = dynamic(() => import('@/components/ui/AICrystal'), { ssr: false });
+const RoadmapVisualizer = dynamic(() => import('@/components/ui/RoadmapVisualizer'), {
+  ssr: false,
+});
 
 type AnalyzeResponse = {
   analysis: GapAnalysis;
 } & PathwayResult;
 
+function getModeLabel(meta: AnalysisMeta | null) {
+  if (!meta) {
+    return null;
+  }
+
+  if (meta.analysis_mode === 'hybrid') {
+    return 'Hybrid parsing';
+  }
+
+  if (meta.analysis_mode === 'heuristic') {
+    return 'Deterministic parsing';
+  }
+
+  return 'Demo fallback';
+}
+
 export default function UploadPage() {
   const [resume, setResume] = useState<File | null>(null);
-  const [resumeText, setResumeText] = useState("");
-  const [jdText, setJdText] = useState("");
+  const [resumeText, setResumeText] = useState('');
+  const [jdText, setJdText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnalyzeResponse | null>(null);
@@ -36,21 +54,34 @@ export default function UploadPage() {
 
   const hasResumeInput = Boolean(resume || resumeText.trim().length >= 80);
   const canAnalyze = hasResumeInput && jdText.trim().length >= 80 && !isLoading;
+  const modeLabel = getModeLabel(meta);
+  const headerNote = meta && modeLabel ? `${modeLabel} | ${meta.role_track} track` : null;
 
-  const headerNote = useMemo(() => {
-    if (!meta) return null;
-    const modeLabel =
-      meta.analysis_mode === "hybrid"
-        ? "Hybrid parsing"
-        : meta.analysis_mode === "heuristic"
-          ? "Deterministic parsing"
-          : "Demo fallback";
+  const handleResumeFileSelect = (file: File | null) => {
+    setResume(file);
+    if (file) {
+      setResumeText('');
+    }
+    setActiveScenarioId(null);
+  };
 
-    return `${modeLabel} • ${meta.role_track} track`;
-  }, [meta]);
+  const handleResumeTextChange = (value: string) => {
+    setResumeText(value);
+    if (value.trim()) {
+      setResume(null);
+    }
+    setActiveScenarioId(null);
+  };
+
+  const handleJdTextChange = (value: string) => {
+    setJdText(value);
+    setActiveScenarioId(null);
+  };
 
   const handleGenerate = async () => {
-    if (!canAnalyze) return;
+    if (!canAnalyze) {
+      return;
+    }
 
     setError(null);
     setIsLoading(true);
@@ -59,22 +90,22 @@ export default function UploadPage() {
 
     const formData = new FormData();
     if (resume) {
-      formData.append("resume", resume);
+      formData.append('resume', resume);
     }
     if (resumeText.trim()) {
-      formData.append("resumeText", resumeText.trim());
+      formData.append('resumeText', resumeText.trim());
     }
-    formData.append("jd", jdText.trim());
+    formData.append('jd', jdText.trim());
 
     try {
-      const response = await fetch("/api/analyze", {
-        method: "POST",
+      const response = await fetch('/api/analyze', {
+        method: 'POST',
         body: formData,
       });
 
       const json = await response.json();
       if (!response.ok) {
-        setError(typeof json.error === "string" ? json.error : "Analysis failed. Please try again.");
+        setError(typeof json.error === 'string' ? json.error : 'Analysis failed. Please try again.');
         return;
       }
 
@@ -83,12 +114,13 @@ export default function UploadPage() {
           setResult(json.data as AnalyzeResponse);
           setMeta((json.meta ?? null) as AnalysisMeta | null);
         });
-      } else {
-        setError("The analysis service returned an unexpected response.");
+        return;
       }
+
+      setError('The analysis service returned an unexpected response.');
     } catch (requestError) {
       console.error(requestError);
-      setError("Network error while generating the pathway.");
+      setError('Network error while generating the pathway.');
     } finally {
       setIsLoading(false);
     }
@@ -96,13 +128,17 @@ export default function UploadPage() {
 
   const loadScenario = (scenarioId: string) => {
     const scenario = demoScenarios.find((item) => item.id === scenarioId);
-    if (!scenario) return;
+    if (!scenario) {
+      return;
+    }
 
     setResume(null);
     setResumeText(scenario.resumeText);
     setJdText(scenario.jdText);
     setActiveScenarioId(scenario.id);
     setError(null);
+    setResult(null);
+    setMeta(null);
   };
 
   return (
@@ -122,8 +158,8 @@ export default function UploadPage() {
           Build a <span className="text-gradient">grounded ramp-up plan</span> for every new hire
         </h1>
         <p className="mx-auto max-w-3xl text-lg leading-relaxed text-slate-300">
-          Upload a resume or paste the candidate profile, add the target job description, and generate a role-aware
-          learning roadmap that only recommends catalog-backed training.
+          Upload a resume or paste the candidate profile, add the target job description, and
+          generate a role-aware learning roadmap that only recommends catalog-backed training.
         </p>
       </motion.div>
 
@@ -140,8 +176,8 @@ export default function UploadPage() {
           <div>
             <h2 className="text-lg font-bold text-white">Demo presets for the 2-minute walkthrough</h2>
             <p className="mt-1 text-sm leading-relaxed text-slate-400">
-              Use a preset when you want to show quick adaptation during judging, then switch back to real uploads for
-              the live evaluation flow.
+              Use a preset when you want to show quick adaptation during judging, then switch back
+              to real uploads for the live evaluation flow.
             </p>
           </div>
         </div>
@@ -157,13 +193,17 @@ export default function UploadPage() {
                 onClick={() => loadScenario(scenario.id)}
                 className={`rounded-2xl border px-4 py-4 text-left transition-colors ${
                   isActive
-                    ? "border-primary/40 bg-primary/10"
-                    : "border-white/8 bg-white/5 hover:border-white/15 hover:bg-white/8"
+                    ? 'border-primary/40 bg-primary/10'
+                    : 'border-white/8 bg-white/5 hover:border-white/15 hover:bg-white/8'
                 }`}
               >
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">{scenario.roleTrack}</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-500">
+                  {scenario.roleTrack}
+                </p>
                 <h3 className="mt-2 text-lg font-bold text-white">{scenario.label}</h3>
-                <p className="mt-2 text-sm text-slate-400">Loads a realistic resume and JD pair to show adaptive pathing.</p>
+                <p className="mt-2 text-sm text-slate-400">
+                  Loads a realistic resume and JD pair to show adaptive pathing.
+                </p>
               </button>
             );
           })}
@@ -186,13 +226,18 @@ export default function UploadPage() {
                 Candidate Material
               </h2>
               <p className="mt-2 text-sm text-slate-400">
-                Preferred for judging: upload the resume file. For quick demos, you can also paste resume text.
+                Preferred for judging: upload the resume file. For quick demos, you can also paste
+                resume text.
               </p>
             </div>
             {hasResumeInput && <FileCheck2 className="h-5 w-5 text-emerald-400" />}
           </div>
 
-          <FileUploadZone accept=".pdf,.docx,.txt" onFileSelect={setResume} selectedFile={resume} />
+          <FileUploadZone
+            accept=".pdf,.docx,.txt"
+            onFileSelect={handleResumeFileSelect}
+            selectedFile={resume}
+          />
 
           <div className="mt-5 rounded-2xl border border-white/10 bg-black/10 p-4">
             <label htmlFor="resumeText" className="mb-2 block text-sm font-semibold text-slate-200">
@@ -201,7 +246,7 @@ export default function UploadPage() {
             <textarea
               id="resumeText"
               value={resumeText}
-              onChange={(event) => setResumeText(event.target.value)}
+              onChange={(event) => handleResumeTextChange(event.target.value)}
               placeholder="Paste a raw resume or candidate summary here when you do not want to upload a file."
               className="h-44 w-full resize-none rounded-2xl border border-white/10 bg-slate-950/40 px-4 py-4 text-slate-200 placeholder:text-slate-500 focus:border-primary/40 focus:outline-none"
             />
@@ -223,7 +268,8 @@ export default function UploadPage() {
                 Target Job Description
               </h2>
               <p className="mt-2 text-sm text-slate-400">
-                Include core responsibilities, tools, collaboration expectations, and required experience depth.
+                Include core responsibilities, tools, collaboration expectations, and required
+                experience depth.
               </p>
             </div>
             {jdText.trim().length >= 80 && <FileCheck2 className="h-5 w-5 text-emerald-400" />}
@@ -231,7 +277,7 @@ export default function UploadPage() {
 
           <textarea
             value={jdText}
-            onChange={(event) => setJdText(event.target.value)}
+            onChange={(event) => handleJdTextChange(event.target.value)}
             placeholder="Paste the target job description requirements here..."
             className="h-[392px] w-full resize-none rounded-[24px] border border-white/10 bg-slate-950/45 px-5 py-5 text-slate-200 placeholder:text-slate-500 focus:border-accent/40 focus:outline-none"
           />
@@ -256,6 +302,7 @@ export default function UploadPage() {
         className="mt-10 flex flex-col items-center gap-4"
       >
         <button
+          type="button"
           onClick={handleGenerate}
           disabled={!canAnalyze}
           className="group inline-flex items-center gap-3 rounded-full bg-white px-10 py-4 text-lg font-extrabold text-slate-950 transition-all hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500"
@@ -273,8 +320,8 @@ export default function UploadPage() {
           )}
         </button>
         <p className="max-w-2xl text-center text-sm text-slate-400">
-          The engine is grounded to the internal course catalog. Unmatched gaps are surfaced for manual review instead
-          of being hallucinated.
+          The engine is grounded to the internal course catalog. Unmatched gaps are surfaced for
+          manual review instead of being hallucinated.
         </p>
       </motion.div>
 

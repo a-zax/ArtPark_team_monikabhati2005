@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { AnimatePresence, motion } from "framer-motion";
-import { AlertCircle, CheckCircle2, Loader2, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from 'framer-motion';
+import { AlertCircle, CheckCircle2, Loader2, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 interface Question {
   question: string;

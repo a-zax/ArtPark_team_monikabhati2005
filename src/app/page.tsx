@@ -1,178 +1,242 @@
-"use client";
+'use client';
 
-import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
-import { ArrowRight, FileText, Blocks, Zap, Crosshair, BrainCircuit, Activity } from 'lucide-react';
-import Link from 'next/link';
-import MagneticButton from '@/components/ui/MagneticButton';
 import dynamic from 'next/dynamic';
-import DemoAnimation from '@/components/ui/DemoAnimation';
+import Link from 'next/link';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import {
+  Activity,
+  ArrowRight,
+  Blocks,
+  BrainCircuit,
+  Crosshair,
+  FileText,
+  Zap,
+} from 'lucide-react';
 
-const ParticleGlobe = dynamic(() => import('@/components/ui/ParticleGlobe'), { ssr: false });
+import DemoAnimation from '@/components/ui/DemoAnimation';
+import MagneticButton from '@/components/ui/MagneticButton';
+
+const ParticleGlobe = dynamic(() => import('@/components/ui/ParticleGlobe'), {
+  ssr: false,
+});
+
+const features = [
+  {
+    title: 'Structured Skill Parsing',
+    description:
+      'The app extracts grounded competencies from resumes and job descriptions, then normalizes them into a role-ready profile.',
+    icon: BrainCircuit,
+    iconClassName: 'text-primary',
+  },
+  {
+    title: 'Targeted Gap Analysis',
+    description:
+      'It highlights where the candidate is already ready, where they are under-leveled, and where training is still required.',
+    icon: Crosshair,
+    iconClassName: 'text-accent',
+  },
+  {
+    title: 'Adaptive Pathing',
+    description:
+      'The pathing engine sequences catalog-backed modules with prerequisites, mentor support, and sandbox work.',
+    icon: Zap,
+    iconClassName: 'text-green-400',
+  },
+];
+
+const workflowSteps = [
+  {
+    num: '01',
+    title: 'Upload Documents',
+    desc: "Drag in the candidate's resume and paste the target job description into the upload flow.",
+  },
+  {
+    num: '02',
+    title: 'Run Analysis',
+    desc: 'The parser extracts current strengths and target expectations, then calculates the real gap.',
+  },
+  {
+    num: '03',
+    title: 'Review the Pathway',
+    desc: 'A staged roadmap is generated with reasoning traces, mentor guidance, and a grounded sandbox project.',
+  },
+];
 
 export default function Home() {
   return (
-    <div className="w-full flex flex-col items-center mx-auto pb-20">
-      
-      {/* 1. HERO SECTION */}
-      <section className="w-full flex flex-col items-center justify-center text-center mt-12 mb-32 relative">
-        <motion.div 
+    <div className="mx-auto flex w-full flex-col items-center pb-20">
+      <section className="relative mb-32 mt-12 flex w-full flex-col items-center justify-center text-center">
+        <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.1, duration: 0.6, type: "spring", stiffness: 150 }}
-          className="inline-flex items-center gap-2 px-5 py-2 rounded-full glass-panel mb-10 border-primary/30"
+          transition={{ delay: 0.1, duration: 0.6, type: 'spring', stiffness: 150 }}
+          className="glass-panel mb-10 inline-flex items-center gap-2 rounded-full border-primary/30 px-5 py-2"
         >
           <div className="relative flex h-3 w-3">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75" />
+            <span className="relative inline-flex h-3 w-3 rounded-full bg-primary" />
           </div>
           <span className="text-sm font-semibold text-slate-300">ArtPark CodeForge Hackathon 2026</span>
         </motion.div>
 
-        <motion.h1 
+        <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
-          className="text-5xl md:text-7xl font-extrabold tracking-tight mb-8 leading-[1.1]"
+          transition={{ delay: 0.2, duration: 0.8, ease: 'easeOut' }}
+          className="mb-8 text-5xl font-extrabold tracking-tight leading-[1.1] md:text-7xl"
         >
           Adaptive onboarding <br className="hidden md:block" />
-          <span className="text-gradient drop-shadow-lg">that respects what people already know.</span>
+          <span className="text-gradient drop-shadow-lg">
+            that respects what people already know.
+          </span>
         </motion.h1>
 
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 1 }}
-          className="max-w-2xl text-lg md:text-xl text-slate-400 mb-12 font-medium leading-relaxed"
+          className="mb-12 max-w-2xl text-lg font-medium leading-relaxed text-slate-400 md:text-xl"
         >
-          Parse a resume, compare it to the target role, and generate a grounded ramp-up plan that closes only the skills that are still missing.
+          Parse a resume, compare it to the target role, and generate a grounded ramp-up plan
+          that closes only the skills that are still missing.
         </motion.p>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5, duration: 0.6 }}
-          className="flex flex-col sm:flex-row items-center gap-6 z-20 relative"
+          className="relative z-20 flex flex-col items-center gap-6 sm:flex-row"
         >
           <MagneticButton>
-            <Link href="/upload" className="group relative flex items-center justify-center gap-3 bg-primary text-white px-8 py-4 rounded-full font-bold text-lg overflow-hidden shadow-[0_0_40px_rgba(59,130,246,0.4)] transition-transform ring-2 ring-primary/50 ring-offset-2 ring-offset-background">
-              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out" />
-              <FileText className="w-6 h-6 relative z-10" />
-              <span className="relative z-10">Upload Resume & JD</span>
+            <Link
+              href="/upload"
+              className="group relative flex items-center justify-center gap-3 overflow-hidden rounded-full bg-primary px-8 py-4 text-lg font-bold text-white shadow-[0_0_40px_rgba(59,130,246,0.4)] ring-2 ring-primary/50 ring-offset-2 ring-offset-background transition-transform"
+            >
+              <div className="absolute inset-0 translate-y-full bg-white/20 transition-transform duration-300 ease-out group-hover:translate-y-0" />
+              <FileText className="relative z-10 h-6 w-6" />
+              <span className="relative z-10">Upload Resume and JD</span>
             </Link>
           </MagneticButton>
-          
+
           <MagneticButton>
-            <Link href="/upload" className="group flex items-center justify-center gap-3 glass-panel text-white px-8 py-4 rounded-full font-bold text-lg transition-all hover:bg-white/10 hover:border-white/20">
-              <Blocks className="w-5 h-5 text-accent group-hover:rotate-12 transition-transform" />
+            <Link
+              href="/upload"
+              className="group glass-panel flex items-center justify-center gap-3 rounded-full px-8 py-4 text-lg font-bold text-white transition-all hover:border-white/20 hover:bg-white/10"
+            >
+              <Blocks className="h-5 w-5 text-accent transition-transform group-hover:rotate-12" />
               <span>View Demo Pathway</span>
-              <ArrowRight className="w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
+              <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1.5" />
             </Link>
           </MagneticButton>
         </motion.div>
-        
-        <div className="absolute top-1/2 left-[30%] -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/20 blur-[140px] rounded-full pointer-events-none -z-10" />
-        <div className="absolute top-[40%] right-[20%] w-[400px] h-[400px] bg-accent/20 blur-[130px] rounded-full pointer-events-none -z-10" />
+
+        <div className="pointer-events-none absolute left-[30%] top-1/2 -z-10 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/20 blur-[140px]" />
+        <div className="pointer-events-none absolute right-[20%] top-[40%] -z-10 h-[400px] w-[400px] rounded-full bg-accent/20 blur-[130px]" />
       </section>
 
-      {/* 2. FEATURES SECTION */}
-      <section id="features" className="w-full min-h-[90vh] flex flex-col justify-center pt-20 pb-32 scroll-mt-24">
-        <motion.div 
+      <section
+        id="features"
+        className="flex min-h-[90vh] w-full scroll-mt-24 flex-col justify-center pb-32 pt-20"
+      >
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          className="text-center mb-16"
+          viewport={{ once: true, margin: '-100px' }}
+          className="mb-16 text-center"
         >
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">Why CogniSync <span className="text-primary">AI</span>?</h2>
-          <p className="text-slate-400 text-lg max-w-2xl mx-auto">Strong hires should skip what they already know. Newer hires should get the right scaffolding before they are asked to deliver.</p>
+          <h2 className="mb-4 text-3xl font-bold md:text-5xl">
+            Why CogniSync <span className="text-primary">AI</span>?
+          </h2>
+          <p className="mx-auto max-w-2xl text-lg text-slate-400">
+            Strong hires should skip what they already know. Newer hires should get the right
+            scaffolding before they are asked to deliver.
+          </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 px-4">
-          <FeatureCard 
-            icon={<BrainCircuit className="w-10 h-10 text-primary" />}
-            title="Intelligent NLP Parsing"
-            description="We extract grounded competencies from resumes and job descriptions, then normalize them into a role-ready profile."
-            delay={0.1}
-          />
-          <FeatureCard 
-            icon={<Crosshair className="w-10 h-10 text-accent" />}
-            title="Precision Gap Analysis"
-            description="Calculates where the candidate is already ready, where they are under-leveled, and where training is still required."
-            delay={0.2}
-          />
-          <FeatureCard 
-            icon={<Zap className="w-10 h-10 text-green-400" />}
-            title="Adaptive Pathing"
-            description="Our original pathing engine sequences catalog-backed modules with prerequisites, mentor support, and sandbox work."
-            delay={0.3}
-          />
+        <div className="grid grid-cols-1 gap-8 px-4 md:grid-cols-3">
+          {features.map((feature, index) => {
+            const Icon = feature.icon;
+
+            return (
+              <FeatureCard
+                key={feature.title}
+                icon={<Icon className={`h-10 w-10 ${feature.iconClassName}`} />}
+                title={feature.title}
+                description={feature.description}
+                delay={0.1 + index * 0.1}
+              />
+            );
+          })}
         </div>
       </section>
 
-      {/* 3. HOW IT WORKS SECTION */}
-      <section id="how-it-works" className="w-full min-h-[90vh] pt-20 pb-32 relative scroll-mt-24 flex flex-col justify-center">
+      <section
+        id="how-it-works"
+        className="relative flex min-h-[90vh] w-full scroll-mt-24 flex-col justify-center pb-32 pt-20"
+      >
         <ParticleGlobe />
-        <div className="absolute inset-0 bg-slate-900/40 skew-y-3 -z-10 border-y border-white/5" />
-        
-        <motion.div 
+        <div className="absolute inset-0 -z-10 skew-y-3 border-y border-white/5 bg-slate-900/40" />
+
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          className="text-center mb-16"
+          viewport={{ once: true, margin: '-100px' }}
+          className="mb-16 text-center"
         >
-          <h2 className="text-3xl md:text-5xl font-bold mb-4">How it <span className="text-gradient">Works</span></h2>
+          <h2 className="mb-4 text-3xl font-bold md:text-5xl">
+            How it <span className="text-gradient">Works</span>
+          </h2>
         </motion.div>
 
-        <div className="max-w-4xl mx-auto space-y-12 px-4">
-          <Step 
-            num="01" 
-            title="Upload Documents" 
-            desc="Drag and drop the candidate's resume and paste the target job description into our secure interface."
-          />
-          <Step 
-            num="02" 
-            title="Analysis Engine" 
-            desc="The parser extracts current strengths and target expectations. The adaptive logic then calculates the real gap."
-          />
-          <Step 
-            num="03" 
-            title="Execute Pathway" 
-            desc="A staged roadmap is generated with reasoning traces, mentor guidance, and a grounded sandbox project."
-          />
+        <div className="mx-auto max-w-4xl space-y-12 px-4">
+          {workflowSteps.map((step) => (
+            <Step key={step.num} num={step.num} title={step.title} desc={step.desc} />
+          ))}
         </div>
       </section>
 
-      {/* 4. DEMO ANIMATION SECTION */}
       <DemoAnimation />
 
-      {/* CALL TO ACTION */}
       <section className="w-full py-32 text-center">
-        <h2 className="text-4xl md:text-5xl font-bold mb-8">Ready to show adaptive onboarding in action?</h2>
-        <Link href="/upload" className="inline-flex items-center gap-3 bg-white text-black px-10 py-5 rounded-full font-extrabold text-xl transition-all hover:scale-105 active:scale-95 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
-          Launch Live Demo <Activity className="w-6 h-6" />
+        <h2 className="mb-8 text-4xl font-bold md:text-5xl">
+          Ready to show adaptive onboarding in action?
+        </h2>
+        <Link
+          href="/upload"
+          className="inline-flex items-center gap-3 rounded-full bg-white px-10 py-5 text-xl font-extrabold text-black shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all hover:scale-105 active:scale-95"
+        >
+          Launch Live Demo <Activity className="h-6 w-6" />
         </Link>
       </section>
     </div>
   );
 }
 
-function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNode, title: string, description: string, delay: number }) {
+function FeatureCard({
+  icon,
+  title,
+  description,
+  delay,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  delay: number;
+}) {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
 
   const mouseXSpring = useSpring(x);
   const mouseYSpring = useSpring(y);
 
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["15deg", "-15deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-15deg", "15deg"]);
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['15deg', '-15deg']);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-15deg', '15deg']);
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const width = rect.width;
-    const height = rect.height;
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
-    const xPct = mouseX / width - 0.5;
-    const yPct = mouseY / height - 0.5;
+  const handleMouseMove = (event: React.MouseEvent<HTMLDivElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const xPct = (event.clientX - rect.left) / rect.width - 0.5;
+    const yPct = (event.clientY - rect.top) / rect.height - 0.5;
+
     x.set(xPct);
     y.set(yPct);
   };
@@ -183,10 +247,10 @@ function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNod
   };
 
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: '-50px' }}
       transition={{ delay, duration: 0.5 }}
       style={{ perspective: 1200 }}
       className="group relative h-full w-full cursor-pointer"
@@ -194,34 +258,47 @@ function FeatureCard({ icon, title, description, delay }: { icon: React.ReactNod
       <motion.div
         onMouseMove={handleMouseMove}
         onMouseLeave={handleMouseLeave}
-        style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-        className="glass-panel p-8 rounded-3xl flex flex-col items-start h-full border border-white/5 bg-slate-900/40 hover:bg-slate-800/60 transition-colors"
+        style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
+        className="glass-panel flex h-full flex-col items-start rounded-3xl border border-white/5 bg-slate-900/40 p-8 transition-colors hover:bg-slate-800/60"
       >
-        <div style={{ transform: "translateZ(70px)" }} className="p-4 rounded-2xl bg-white/5 mb-6 group-hover:bg-primary/20 transition-colors shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+        <div
+          style={{ transform: 'translateZ(70px)' }}
+          className="mb-6 rounded-2xl bg-white/5 p-4 shadow-[0_0_15px_rgba(59,130,246,0.2)] transition-colors group-hover:bg-primary/20"
+        >
           {icon}
         </div>
-        <h3 style={{ transform: "translateZ(40px)" }} className="text-2xl font-bold mb-3 drop-shadow-md">{title}</h3>
-        <p style={{ transform: "translateZ(20px)" }} className="text-slate-400 leading-relaxed font-medium">{description}</p>
+        <h3
+          style={{ transform: 'translateZ(40px)' }}
+          className="mb-3 text-2xl font-bold drop-shadow-md"
+        >
+          {title}
+        </h3>
+        <p
+          style={{ transform: 'translateZ(20px)' }}
+          className="font-medium leading-relaxed text-slate-400"
+        >
+          {description}
+        </p>
       </motion.div>
     </motion.div>
   );
 }
 
-function Step({ num, title, desc }: { num: string, title: string, desc: string }) {
+function Step({ num, title, desc }: { num: string; title: string; desc: string }) {
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, x: -30 }}
       whileInView={{ opacity: 1, x: 0 }}
-      viewport={{ once: true, margin: "-50px" }}
+      viewport={{ once: true, margin: '-50px' }}
       transition={{ duration: 0.5 }}
-      className="flex gap-6 md:gap-12 items-start group"
+      className="group flex items-start gap-6 md:gap-12"
     >
-      <div className="text-5xl md:text-7xl font-extrabold text-slate-800 select-none group-hover:text-primary transition-colors duration-500">
+      <div className="select-none text-5xl font-extrabold text-slate-800 transition-colors duration-500 group-hover:text-primary md:text-7xl">
         {num}
       </div>
       <div className="pt-2 md:pt-4">
-        <h3 className="text-2xl font-bold mb-2 text-white">{title}</h3>
-        <p className="text-slate-400 text-lg leading-relaxed">{desc}</p>
+        <h3 className="mb-2 text-2xl font-bold text-white">{title}</h3>
+        <p className="text-lg leading-relaxed text-slate-400">{desc}</p>
       </div>
     </motion.div>
   );

@@ -1,41 +1,58 @@
 interface CalendarEvent {
-   title: string;
-   description: string;
-   start: Date;
-   durationHours: number;
+  title: string;
+  description: string;
+  start: Date;
+  durationHours: number;
+}
+
+function formatUtcTimestamp(date: Date): string {
+  return `${date.toISOString().replace(/[-:]/g, '').split('.')[0]}Z`;
+}
+
+function escapeIcsValue(value: string): string {
+  return value
+    .replace(/\\/g, '\\\\')
+    .replace(/\r?\n/g, '\\n')
+    .replace(/,/g, '\\,')
+    .replace(/;/g, '\\;');
 }
 
 export function generateICS(events: CalendarEvent[]): string {
-   let ics = "BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//CogniSync AI//Corporate Onboarding Module//EN\nCALSCALE:GREGORIAN\n";
+  const lines = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//CogniSync//Onboarding Planner//EN',
+    'CALSCALE:GREGORIAN',
+  ];
 
-   events.forEach((event) => {
-      const end = new Date(event.start.getTime() + event.durationHours * 60 * 60 * 1000);
-      
-      const formatTime = (d: Date) => {
-         return d.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
-      };
+  events.forEach((event, index) => {
+    const end = new Date(event.start.getTime() + event.durationHours * 60 * 60 * 1000);
 
-      ics += "BEGIN:VEVENT\n";
-      ics += `DTSTAMP:${formatTime(new Date())}\n`;
-      ics += `DTSTART:${formatTime(event.start)}\n`;
-      ics += `DTEND:${formatTime(end)}\n`;
-      ics += `SUMMARY:Onboarding: ${event.title}\n`;
-      ics += `DESCRIPTION:${event.description}\n`;
-      ics += "END:VEVENT\n";
-   });
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${formatUtcTimestamp(event.start)}-${index}@cognisync`);
+    lines.push(`DTSTAMP:${formatUtcTimestamp(new Date())}`);
+    lines.push(`DTSTART:${formatUtcTimestamp(event.start)}`);
+    lines.push(`DTEND:${formatUtcTimestamp(end)}`);
+    lines.push(`SUMMARY:${escapeIcsValue(`Onboarding: ${event.title}`)}`);
+    lines.push(`DESCRIPTION:${escapeIcsValue(event.description)}`);
+    lines.push('END:VEVENT');
+  });
 
-   ics += "END:VCALENDAR";
-   return ics;
+  lines.push('END:VCALENDAR');
+
+  return lines.join('\n');
 }
 
-export function downloadICS(events: CalendarEvent[], filename = "onboarding_schedule.ics") {
-   const icsData = generateICS(events);
-   const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
-   const url = window.URL.createObjectURL(blob);
-   const link = document.createElement('a');
-   link.href = url;
-   link.setAttribute('download', filename);
-   document.body.appendChild(link);
-   link.click();
-   document.body.removeChild(link);
+export function downloadICS(events: CalendarEvent[], filename = 'onboarding_schedule.ics') {
+  const icsData = generateICS(events);
+  const blob = new Blob([icsData], { type: 'text/calendar;charset=utf-8' });
+  const url = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+
+  link.href = url;
+  link.setAttribute('download', filename);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  window.URL.revokeObjectURL(url);
 }

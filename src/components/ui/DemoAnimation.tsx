@@ -1,21 +1,84 @@
-"use client";
+'use client';
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from 'framer-motion';
 import {
-  FileText, ArrowRight, BrainCircuit,
-  CheckCircle2, AlertCircle, Clock,
-  TrendingDown, Users, Target, Loader2
-} from "lucide-react";
+  AlertCircle,
+  ArrowRight,
+  BrainCircuit,
+  CheckCircle2,
+  Clock,
+  FileText,
+  Loader2,
+  Target,
+  TrendingDown,
+  Users,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const STEPS = [
-  { id: 0, label: "Upload Documents" },
-  { id: 1, label: "AI Analysing" },
-  { id: 2, label: "Roadmap Ready" },
-  { id: 3, label: "ROI & Mentors" },
+  { id: 0, label: 'Upload Documents' },
+  { id: 1, label: 'Analysis Running' },
+  { id: 2, label: 'Roadmap Ready' },
+  { id: 3, label: 'ROI and Mentors' },
+];
+
+const STATUS_ITEMS = [
+  { label: 'Extracting resume signals', done: true },
+  { label: 'Mapping job requirements', done: true },
+  { label: 'Comparing skill levels', done: true },
+  { label: 'Sequencing the learning path', done: false },
+];
+
+const CURRENT_SKILLS = ['React', 'Git', 'CSS', 'JavaScript'];
+const TARGET_GAPS = ['Next.js', 'Docker', 'Machine Learning'];
+
+const PATHWAY_MODULES = [
+  { step: 1, title: 'Next.js Fundamentals and App Router', hours: 4 },
+  { step: 2, title: 'Docker Containerization and CI/CD', hours: 6 },
+  { step: 3, title: 'Machine Learning Foundations', hours: 8 },
+];
+
+const ROI_CARDS = [
+  {
+    Icon: TrendingDown,
+    color: 'text-green-400',
+    accent: 'border-l-green-400',
+    bg: 'bg-green-400/5',
+    title: 'Hours Saved',
+    value: '45 hrs',
+    sub: '$3,825 budget saved',
+    sub2: '4 modules bypassed',
+  },
+  {
+    Icon: Users,
+    color: 'text-primary',
+    accent: 'border-l-primary',
+    bg: 'bg-primary/5',
+    title: 'Mentor Match',
+    value: 'Dr. E. Rostova',
+    sub: 'Principal Engineer',
+    sub2: 'Next.js reviewer',
+  },
+  {
+    Icon: Target,
+    color: 'text-accent',
+    accent: 'border-l-accent',
+    bg: 'bg-accent/5',
+    title: 'Day 1 Sandbox',
+    value: 'Micro-Deploy',
+    sub: 'Next.js project',
+    sub2: 'Practical first task',
+  },
 ];
 
 const STEP_DURATION = 3800;
+
+const slide = {
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -20 },
+  transition: { duration: 0.35, ease: 'easeOut' as const },
+};
 
 export default function DemoAnimation() {
   const [step, setStep] = useState(0);
@@ -23,216 +86,199 @@ export default function DemoAnimation() {
 
   useEffect(() => {
     setProgress(0);
-    const fill = setInterval(() => setProgress((p) => (p >= 100 ? 100 : p + 1)), STEP_DURATION / 100);
-    const next = setTimeout(() => {
-      setStep((s) => (s + 1) % STEPS.length);
+
+    const fill = window.setInterval(
+      () => setProgress((current) => (current >= 100 ? 100 : current + 1)),
+      STEP_DURATION / 100,
+    );
+    const next = window.setTimeout(() => {
+      setStep((current) => (current + 1) % STEPS.length);
     }, STEP_DURATION);
-    return () => { clearInterval(fill); clearTimeout(next); };
+
+    return () => {
+      window.clearInterval(fill);
+      window.clearTimeout(next);
+    };
   }, [step]);
 
   return (
-    <section id="demo" className="w-full py-12 scroll-mt-32">
-      {/* Heading */}
+    <section id="demo" className="w-full scroll-mt-32 py-12">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        className="text-center mb-8"
+        className="mb-8 text-center"
       >
-        <p className="text-xs tracking-[0.4em] text-primary/70 uppercase font-mono mb-2">Live Product Preview</p>
-        <h2 className="text-3xl md:text-5xl font-bold mb-3">
+        <p className="mb-2 font-mono text-xs uppercase tracking-[0.4em] text-primary/70">
+          Live Product Preview
+        </p>
+        <h2 className="mb-3 text-3xl font-bold md:text-5xl">
           See CogniSync <span className="text-gradient">In Action</span>
         </h2>
-        <p className="text-slate-400 max-w-lg mx-auto text-base">
-          Watch the full adaptive onboarding pipeline run automatically below.
+        <p className="mx-auto max-w-lg text-base text-slate-400">
+          Watch the adaptive onboarding flow step through upload, analysis, and delivery.
         </p>
       </motion.div>
 
-      {/* Step nav pills */}
-      <div className="flex items-center justify-center gap-3 mb-6 flex-wrap">
-        {STEPS.map((s, i) => (
+      <div className="mb-6 flex flex-wrap items-center justify-center gap-3">
+        {STEPS.map((item, index) => (
           <button
-            key={s.id}
-            onClick={() => setStep(i)}
-            className={`flex items-center gap-2 px-3 py-1 rounded-full text-sm font-semibold border transition-all duration-300 ${
-              step === i
-                ? "bg-primary text-white border-primary shadow-[0_0_14px_rgba(59,130,246,0.5)]"
-                : "text-slate-400 border-slate-700 hover:border-primary/50 hover:text-slate-200"
+            key={item.id}
+            type="button"
+            onClick={() => setStep(index)}
+            className={`flex items-center gap-2 rounded-full border px-3 py-1 text-sm font-semibold transition-all duration-300 ${
+              step === index
+                ? 'border-primary bg-primary text-white shadow-[0_0_14px_rgba(59,130,246,0.5)]'
+                : 'border-slate-700 text-slate-400 hover:border-primary/50 hover:text-slate-200'
             }`}
           >
-            <span className={`w-4 h-4 rounded-full text-[10px] flex items-center justify-center font-bold ${step === i ? "bg-white/20" : "bg-slate-800"}`}>{i + 1}</span>
-            {s.label}
+            <span
+              className={`flex h-4 w-4 items-center justify-center rounded-full text-[10px] font-bold ${
+                step === index ? 'bg-white/20' : 'bg-slate-800'
+              }`}
+            >
+              {index + 1}
+            </span>
+            {item.label}
           </button>
         ))}
       </div>
 
-      {/* Browser frame */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ delay: 0.15 }}
-        className="max-w-4xl mx-auto rounded-2xl overflow-hidden border border-white/10 shadow-[0_0_80px_rgba(59,130,246,0.12)] bg-[#0a0f1e]"
+        className="mx-auto max-w-4xl overflow-hidden rounded-2xl border border-white/10 bg-[#0a0f1e] shadow-[0_0_80px_rgba(59,130,246,0.12)]"
       >
-        {/* Browser chrome */}
-        <div className="flex items-center gap-3 px-5 py-2.5 bg-slate-900 border-b border-white/5">
+        <div className="flex items-center gap-3 border-b border-white/5 bg-slate-900 px-5 py-2.5">
           <div className="flex items-center gap-1.5">
-            <span className="w-3 h-3 rounded-full bg-red-500/80" />
-            <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
-            <span className="w-3 h-3 rounded-full bg-green-500/80" />
+            <span className="h-3 w-3 rounded-full bg-red-500/80" />
+            <span className="h-3 w-3 rounded-full bg-yellow-500/80" />
+            <span className="h-3 w-3 rounded-full bg-green-500/80" />
           </div>
-          <div className="flex-1 mx-3 flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-1 h-7">
-            <div className="w-3 h-3 rounded-full border border-slate-600 flex-shrink-0" />
-            <span className="text-xs text-slate-500 font-mono truncate">localhost:3000 — CogniSync AI</span>
+          <div className="mx-3 flex h-7 flex-1 items-center gap-2 rounded-lg bg-slate-800 px-3 py-1">
+            <div className="h-3 w-3 shrink-0 rounded-full border border-slate-600" />
+            <span className="truncate font-mono text-xs text-slate-500">
+              localhost:3000 - CogniSync
+            </span>
           </div>
-          <div className="hidden sm:flex items-center gap-1.5">
-            {STEPS.map((s) => (
+          <div className="hidden items-center gap-1.5 sm:flex">
+            {STEPS.map((item) => (
               <div
-                key={s.id}
-                className={`rounded-full transition-all duration-500 ${step === s.id ? "w-6 h-1 bg-primary" : "w-1.5 h-1 bg-slate-700"}`}
+                key={item.id}
+                className={`rounded-full transition-all duration-500 ${
+                  step === item.id ? 'h-1 w-6 bg-primary' : 'h-1 w-1.5 bg-slate-700'
+                }`}
               />
             ))}
           </div>
         </div>
 
-        {/* Loading bar */}
         <div className="h-0.5 bg-slate-800">
           <motion.div
             className="h-full bg-gradient-to-r from-primary to-accent"
             animate={{ width: `${progress}%` }}
-            transition={{ ease: "linear", duration: 0.1 }}
+            transition={{ ease: 'linear', duration: 0.1 }}
           />
         </div>
 
-        {/* Screen body */}
-        <div className="relative bg-[#020617] min-h-[400px] flex items-center justify-center p-6 md:p-8 overflow-hidden">
-          {/* Subtle glows */}
-          <div className="absolute top-0 left-1/4 w-72 h-72 bg-primary/5 blur-[80px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-0 right-1/4 w-72 h-72 bg-accent/5 blur-[80px] rounded-full pointer-events-none" />
+        <div className="relative flex min-h-[400px] items-center justify-center overflow-hidden bg-[#020617] p-6 md:p-8">
+          <div className="pointer-events-none absolute left-1/4 top-0 h-72 w-72 rounded-full bg-primary/5 blur-[80px]" />
+          <div className="pointer-events-none absolute bottom-0 right-1/4 h-72 w-72 rounded-full bg-accent/5 blur-[80px]" />
 
           <AnimatePresence mode="wait">
-
-            {/* ── STEP 0: Upload ── */}
             {step === 0 && (
-              <motion.div key="upload" {...slide} className="w-full max-w-2xl flex flex-col gap-8">
+              <motion.div
+                key="upload"
+                {...slide}
+                className="flex w-full max-w-2xl flex-col gap-8"
+              >
                 <div className="text-center">
-                  <h3 className="text-2xl md:text-3xl font-extrabold mb-2">Initialize <span className="text-gradient">Analysis</span></h3>
-                  <p className="text-slate-400 text-sm">Provide your documents to begin the adaptive process.</p>
+                  <h3 className="mb-2 text-2xl font-extrabold md:text-3xl">
+                    Start the <span className="text-gradient">Analysis</span>
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    Provide the candidate material and target role requirements.
+                  </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  {/* Resume card */}
-                  <div className="glass-panel rounded-2xl p-6 flex flex-col items-center gap-4 border border-primary/20 hover:border-primary/40 transition-colors">
-                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                      <FileText className="w-6 h-6 text-primary" />
+
+                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+                  <div className="glass-panel flex flex-col items-center gap-4 rounded-2xl border border-primary/20 p-6 transition-colors hover:border-primary/40">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-primary/20 bg-primary/10">
+                      <FileText className="h-6 w-6 text-primary" />
                     </div>
                     <div className="text-center">
-                      <p className="font-bold text-white text-sm mb-1">resume_john_doe.pdf</p>
-                      <p className="text-xs text-slate-500">248 KB • PDF Document</p>
+                      <p className="mb-1 text-sm font-bold text-white">resume_john_doe.pdf</p>
+                      <p className="text-xs text-slate-500">248 KB | PDF document</p>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Uploaded
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs font-bold text-green-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Uploaded
                     </span>
                   </div>
-                  {/* JD card */}
-                  <div className="glass-panel rounded-2xl p-6 flex flex-col items-center gap-4 border border-accent/20 hover:border-accent/40 transition-colors">
-                    <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center border border-accent/20">
-                      <FileText className="w-6 h-6 text-accent" />
+
+                  <div className="glass-panel flex flex-col items-center gap-4 rounded-2xl border border-accent/20 p-6 transition-colors hover:border-accent/40">
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-accent/20 bg-accent/10">
+                      <FileText className="h-6 w-6 text-accent" />
                     </div>
                     <div className="text-center">
-                      <p className="font-bold text-white text-sm mb-1">senior_engineer_jd.txt</p>
-                      <p className="text-xs text-slate-500">Job Description • Pasted</p>
+                      <p className="mb-1 text-sm font-bold text-white">senior_engineer_jd.txt</p>
+                      <p className="text-xs text-slate-500">Job description | pasted</p>
                     </div>
-                    <span className="inline-flex items-center gap-1.5 text-xs font-bold text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Ready
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs font-bold text-green-400">
+                      <CheckCircle2 className="h-3.5 w-3.5" /> Ready
                     </span>
                   </div>
                 </div>
+
                 <div className="flex justify-center">
-                  <div className="inline-flex items-center gap-2.5 bg-white text-black px-8 py-3.5 rounded-full font-extrabold text-sm shadow-[0_0_30px_rgba(255,255,255,0.2)]">
-                    Formulate Pathway <ArrowRight className="w-4 h-4" />
+                  <div className="inline-flex items-center gap-2.5 rounded-full bg-white px-8 py-3.5 text-sm font-extrabold text-black shadow-[0_0_30px_rgba(255,255,255,0.2)]">
+                    Generate Pathway <ArrowRight className="h-4 w-4" />
                   </div>
                 </div>
               </motion.div>
             )}
 
-            {/* ── STEP 1: AI Running ── */}
             {step === 1 && (
-              <motion.div key="analyzing" {...slide} className="w-full max-w-md flex flex-col items-center gap-8 text-center">
-                <div className="relative w-24 h-24 flex items-center justify-center">
+              <motion.div
+                key="analyzing"
+                {...slide}
+                className="flex w-full max-w-md flex-col items-center gap-8 text-center"
+              >
+                <div className="relative flex h-24 w-24 items-center justify-center">
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
                     className="absolute inset-0 rounded-full border-4 border-slate-800 border-t-primary"
                   />
-                  <BrainCircuit className="w-10 h-10 text-primary" />
+                  <BrainCircuit className="h-10 w-10 text-primary" />
                 </div>
                 <div>
-                  <h3 className="text-2xl font-extrabold mb-2">AI Engine Processing</h3>
-                  <p className="text-slate-400 text-sm">Extracting and evaluating candidate proficiencies...</p>
+                  <h3 className="mb-2 text-2xl font-extrabold">Analysis in Progress</h3>
+                  <p className="text-sm text-slate-400">
+                    Extracting signals and matching them against role expectations.
+                  </p>
                 </div>
                 <div className="w-full space-y-3 text-left">
-                  {[
-                    { label: "Extracting NLP entities from resume", done: true },
-                    { label: "Mapping required JD skills", done: true },
-                    { label: "Computing gap delta matrix", done: true },
-                    { label: "Constructing DAG learning pathway", done: false },
-                  ].map((t, i) => (
+                  {STATUS_ITEMS.map((item, index) => (
                     <motion.div
-                      key={t.label}
+                      key={item.label}
                       initial={{ opacity: 0, x: -12 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.35 }}
-                      className="flex items-center gap-3 glass-panel rounded-xl px-4 py-3"
+                      transition={{ delay: index * 0.35 }}
+                      className="glass-panel flex items-center gap-3 rounded-xl px-4 py-3"
                     >
-                      {t.done
-                        ? <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
-                        : <Loader2 className="w-4 h-4 text-primary flex-shrink-0 animate-spin" />}
-                      <span className={`text-sm ${t.done ? "text-slate-300" : "text-white font-semibold"}`}>{t.label}</span>
-                    </motion.div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* ── STEP 2: Roadmap ── */}
-            {step === 2 && (
-              <motion.div key="roadmap" {...slide} className="w-full max-w-2xl flex flex-col gap-6">
-                <div className="text-center">
-                  <h3 className="text-2xl md:text-3xl font-extrabold mb-2">Your Dynamic <span className="text-gradient">Pathway</span></h3>
-                </div>
-                {/* Skill tags */}
-                <div className="flex flex-wrap gap-2 justify-center">
-                  {["React", "Git", "CSS", "JS"].map(s => (
-                    <span key={s} className="text-xs font-bold text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full flex items-center gap-1">
-                      <CheckCircle2 className="w-3 h-3" />{s}
-                    </span>
-                  ))}
-                  {["Next.js", "Docker", "ML"].map(s => (
-                    <span key={s} className="text-xs font-bold text-red-400 bg-red-500/10 border border-red-500/20 px-3 py-1 rounded-full flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />{s}
-                    </span>
-                  ))}
-                </div>
-                {/* Timeline */}
-                <div className="space-y-3">
-                  {[
-                    { n: 1, title: "Next.js Fundamentals & App Router", h: 4 },
-                    { n: 2, title: "Docker Containerization & CI/CD", h: 6 },
-                    { n: 3, title: "Machine Learning Foundations", h: 8 },
-                  ].map((m, i) => (
-                    <motion.div
-                      key={m.n}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.2 }}
-                      className="flex items-center gap-4 glass-panel rounded-xl px-5 py-4 hover:border-primary/40 transition-colors"
-                    >
-                      <div className="w-9 h-9 rounded-full bg-primary/10 border-2 border-primary/40 flex items-center justify-center text-sm font-extrabold text-primary flex-shrink-0">
-                        {m.n}
-                      </div>
-                      <p className="flex-1 font-semibold text-sm md:text-base text-white">{m.title}</p>
-                      <span className="flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/10 border border-primary/20 px-3 py-1.5 rounded-full flex-shrink-0">
-                        <Clock className="w-3 h-3" />{m.h}h
+                      {item.done ? (
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-green-400" />
+                      ) : (
+                        <Loader2 className="h-4 w-4 shrink-0 animate-spin text-primary" />
+                      )}
+                      <span
+                        className={`text-sm ${
+                          item.done ? 'text-slate-300' : 'font-semibold text-white'
+                        }`}
+                      >
+                        {item.label}
                       </span>
                     </motion.div>
                   ))}
@@ -240,52 +286,109 @@ export default function DemoAnimation() {
               </motion.div>
             )}
 
-            {/* ── STEP 3: ROI Dashboard ── */}
-            {step === 3 && (
-              <motion.div key="roi" {...slide} className="w-full max-w-2xl flex flex-col gap-6">
+            {step === 2 && (
+              <motion.div
+                key="roadmap"
+                {...slide}
+                className="flex w-full max-w-2xl flex-col gap-6"
+              >
                 <div className="text-center">
-                  <h3 className="text-2xl md:text-3xl font-extrabold mb-2">Holistic <span className="text-gradient">Integration Plan</span></h3>
-                  <p className="text-slate-400 text-sm">ROI calculated, mentor matched, sandbox deployed.</p>
+                  <h3 className="text-2xl font-extrabold md:text-3xl">
+                    Your <span className="text-gradient">Pathway</span>
+                  </h3>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  {[
-                    { Icon: TrendingDown, color: "text-green-400", accent: "border-l-green-400", bg: "bg-green-400/5", title: "Hours Saved", value: "45 hrs", sub: "$3,825 budget saved", sub2: "4 modules bypassed" },
-                    { Icon: Users, color: "text-primary", accent: "border-l-primary", bg: "bg-primary/5", title: "AI Mentor Match", value: "Dr. E. Rostova", sub: "Principal Engineer", sub2: "Next.js SME" },
-                    { Icon: Target, color: "text-accent", accent: "border-l-accent", bg: "bg-accent/5", title: "Day-1 Sandbox", value: "Micro-Deploy", sub: "Next.js project", sub2: "Practical first task" },
-                  ].map((c) => (
-                    <motion.div
-                      key={c.title}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className={`glass-panel rounded-2xl p-5 border-l-4 ${c.accent} ${c.bg} flex flex-col gap-2`}
+
+                <div className="flex flex-wrap justify-center gap-2">
+                  {CURRENT_SKILLS.map((skill) => (
+                    <span
+                      key={skill}
+                      className="flex items-center gap-1 rounded-full border border-green-500/20 bg-green-500/10 px-3 py-1 text-xs font-bold text-green-400"
                     >
-                      <c.Icon className={`w-7 h-7 ${c.color}`} />
-                      <p className="text-xs text-slate-400 font-semibold uppercase tracking-wider">{c.title}</p>
-                      <p className={`font-extrabold text-base leading-tight text-white`}>{c.value}</p>
-                      <p className={`text-xs ${c.color} font-medium`}>{c.sub}</p>
-                      <p className="text-xs text-slate-500">{c.sub2}</p>
-                    </motion.div>
+                      <CheckCircle2 className="h-3 w-3" />
+                      {skill}
+                    </span>
+                  ))}
+                  {TARGET_GAPS.map((skill) => (
+                    <span
+                      key={skill}
+                      className="flex items-center gap-1 rounded-full border border-red-500/20 bg-red-500/10 px-3 py-1 text-xs font-bold text-red-400"
+                    >
+                      <AlertCircle className="h-3 w-3" />
+                      {skill}
+                    </span>
                   ))}
                 </div>
-                <div className="flex justify-center">
-                  <div className="inline-flex items-center gap-2.5 text-green-400 font-bold text-sm glass-panel border border-green-500/20 px-6 py-3 rounded-full">
-                    <CheckCircle2 className="w-5 h-5" />
-                    Role Competency Achieved — Candidate Ready for Deployment
-                  </div>
+
+                <div className="space-y-3">
+                  {PATHWAY_MODULES.map((module, index) => (
+                    <motion.div
+                      key={module.step}
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.2 }}
+                      className="glass-panel flex items-center gap-4 rounded-xl px-5 py-4 transition-colors hover:border-primary/40"
+                    >
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border-2 border-primary/40 bg-primary/10 text-sm font-extrabold text-primary">
+                        {module.step}
+                      </div>
+                      <p className="flex-1 text-sm font-semibold text-white md:text-base">
+                        {module.title}
+                      </p>
+                      <span className="flex shrink-0 items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary">
+                        <Clock className="h-3 w-3" />
+                        {module.hours}h
+                      </span>
+                    </motion.div>
+                  ))}
                 </div>
               </motion.div>
             )}
 
+            {step === 3 && (
+              <motion.div
+                key="roi"
+                {...slide}
+                className="flex w-full max-w-2xl flex-col gap-6"
+              >
+                <div className="text-center">
+                  <h3 className="mb-2 text-2xl font-extrabold md:text-3xl">
+                    Readiness <span className="text-gradient">Summary</span>
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    Hours saved, mentor assignment, and first practical task.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  {ROI_CARDS.map((card) => (
+                    <motion.div
+                      key={card.title}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`glass-panel flex flex-col gap-2 rounded-2xl border-l-4 p-5 ${card.accent} ${card.bg}`}
+                    >
+                      <card.Icon className={`h-7 w-7 ${card.color}`} />
+                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+                        {card.title}
+                      </p>
+                      <p className="text-base font-extrabold leading-tight text-white">
+                        {card.value}
+                      </p>
+                      <p className={`text-xs font-medium ${card.color}`}>{card.sub}</p>
+                      <p className="text-xs text-slate-500">{card.sub2}</p>
+                    </motion.div>
+                  ))}
+                </div>
+                <div className="flex justify-center">
+                  <div className="glass-panel inline-flex items-center gap-2.5 rounded-full border border-green-500/20 px-6 py-3 text-sm font-bold text-green-400">
+                    <CheckCircle2 className="h-5 w-5" />
+                    Role competency achieved - candidate ready for deployment
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         </div>
       </motion.div>
     </section>
   );
 }
-
-const slide = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -20 },
-  transition: { duration: 0.35, ease: "easeOut" as const },
-};

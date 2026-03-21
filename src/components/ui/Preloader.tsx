@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
 
 const STAGES = [
-  "Initializing neural engines...",
-  "Calibrating skill gap analysis...",
-  "Syncing corporate catalog...",
-  "Mounting 3D environments...",
-  "Engine Ready.",
+  'Loading workspace...',
+  'Reading skill data...',
+  'Preparing the course catalog...',
+  'Starting the visual layer...',
+  'Ready.',
 ];
 
 export default function Preloader() {
@@ -19,44 +19,37 @@ export default function Preloader() {
 
   useEffect(() => {
     setMounted(true);
-    
-    // Safety exit: force clear after 10 seconds if something stalls
-    const safety = setTimeout(() => {
-      setDone(true);
-    }, 10000);
 
-    const interval = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          clearTimeout(safety);
-          setTimeout(() => setDone(true), 800);
+    const safetyTimer = window.setTimeout(() => {
+      setDone(true);
+    }, 10_000);
+
+    const interval = window.setInterval(() => {
+      setProgress((current) => {
+        if (current >= 100) {
+          window.clearInterval(interval);
+          window.clearTimeout(safetyTimer);
+          window.setTimeout(() => setDone(true), 800);
           return 100;
         }
 
-        // Snap logic
-        const next = prev + Math.max(1, Math.floor((101 - prev) / 6));
-        const limitedNext = Math.min(100, next);
-        
-        setStage(Math.min(STAGES.length - 1, Math.floor(limitedNext / 21)));
-        
-        // Debug for the user in console
-        if (limitedNext % 10 === 0) {
-          console.log(`[CogniSync] Initialization progress: ${limitedNext}%`);
-        }
-        
-        return limitedNext;
+        const next = current + Math.max(1, Math.floor((101 - current) / 6));
+        const clamped = Math.min(100, next);
+
+        setStage(Math.min(STAGES.length - 1, Math.floor(clamped / 21)));
+        return clamped;
       });
     }, 80);
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(safety);
+      window.clearInterval(interval);
+      window.clearTimeout(safetyTimer);
     };
   }, []);
 
-  if (!mounted) return null;
-
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <AnimatePresence mode="wait">
@@ -64,46 +57,47 @@ export default function Preloader() {
         <motion.div
           key="preloader"
           initial={{ opacity: 1 }}
-          exit={{ 
-            clipPath: "inset(0 0 100% 0)", 
+          exit={{
+            clipPath: 'inset(0 0 100% 0)',
             opacity: 0,
-            transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] }
+            transition: { duration: 1.2, ease: [0.76, 0, 0.24, 1] },
           }}
-          className="fixed inset-0 z-[999] bg-[#020617] flex flex-col items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[999] flex flex-col items-center justify-center overflow-hidden bg-[#020617]"
         >
-          {/* Top & Bottom cinematic bars */}
-          <div className="absolute top-0 left-0 right-0 h-[8px] bg-primary/20" />
+          <div className="absolute left-0 right-0 top-0 h-[8px] bg-primary/20" />
           <div className="absolute bottom-0 left-0 right-0 h-[8px] bg-primary/20" />
+          <div className="pointer-events-none absolute left-1/2 top-0 h-[400px] w-[700px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-[160px]" />
 
-          {/* Ambient glow */}
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[400px] bg-primary/10 blur-[160px] rounded-full -translate-y-1/2 pointer-events-none" />
-
-          <div className="relative z-10 flex flex-col items-center gap-8 w-full max-w-sm px-8">
+          <div className="relative z-10 flex w-full max-w-sm flex-col items-center gap-8 px-8">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
               className="text-center"
             >
-              <p className="text-[10px] tracking-[0.4em] text-primary/60 uppercase font-mono mb-2">ArtPark CodeForge 2026</p>
-              <h1 className="text-3xl font-extrabold text-white tracking-tight">
+              <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.4em] text-primary/60">
+                ArtPark CodeForge 2026
+              </p>
+              <h1 className="text-3xl font-extrabold tracking-tight text-white">
                 CogniSync <span className="text-primary">AI</span>
               </h1>
             </motion.div>
 
-            {/* Giant counter */}
-            <div className="tabular-nums font-black text-[110px] leading-none text-white tracking-tighter select-none" style={{ textShadow: "0 0 50px rgba(59,130,246,0.3)" }}>
+            <div
+              className="select-none text-[110px] font-black leading-none tracking-tighter text-white"
+              style={{ textShadow: '0 0 50px rgba(59,130,246,0.3)' }}
+            >
               {progress}
-              <span className="text-3xl font-bold text-primary ml-1">%</span>
+              <span className="ml-1 text-3xl font-bold text-primary">%</span>
             </div>
 
-            <div className="w-full h-[2px] bg-slate-800/50 rounded-full overflow-hidden">
+            <div className="h-[2px] w-full overflow-hidden rounded-full bg-slate-800/50">
               <motion.div
                 className="h-full bg-primary"
                 initial={{ width: 0 }}
                 animate={{ width: `${progress}%` }}
-                transition={{ type: "spring", stiffness: 50, damping: 15 }}
-                style={{ boxShadow: "0 0 15px rgba(59,130,246,0.6)" }}
+                transition={{ type: 'spring', stiffness: 50, damping: 15 }}
+                style={{ boxShadow: '0 0 15px rgba(59,130,246,0.6)' }}
               />
             </div>
 
@@ -114,7 +108,7 @@ export default function Preloader() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.3 }}
-                className="text-xs text-slate-500 font-mono tracking-[0.2em] uppercase"
+                className="font-mono text-xs uppercase tracking-[0.2em] text-slate-500"
               >
                 {STAGES[stage]}
               </motion.p>
